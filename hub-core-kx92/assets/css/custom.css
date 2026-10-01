@@ -1,0 +1,18 @@
+/* [LOCK-MODULE: CORE-ASSETS] - ESTILOS PERSONALIZADOS DEL HUB PRIVADO */
+
+:root {
+    --accent-orange: #ea580c;
+    --accent-orange-hover: #f97316;
+}
+
+body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Transiciones suaves para botones y tarjetas */
+.card-hover {
+    transition: transform 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+.card-hover:hover {
+    transform: translateY(-2px);
+}

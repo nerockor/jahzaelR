@@ -1,0 +1,20 @@
+# ==============================================================
+# SEGURIDAD Y ENRUTAMIENTO ESTRICTO - 3D FARM MANAGER
+# ==============================================================
+
+# Desactivar listado de directorios
+Options -Indexes
+
+# Bloquear acceso a archivos sensibles y de configuración
+<FilesMatch "^(\.env|\.git|\.htaccess|schema\.sql|composer\.(json|lock)|.*\.md)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Bloquear acceso HTTP directo al directorio /config
+RewriteEngine On
+RewriteRule ^config/.*$ - [F,L]
+RewriteRule ^database/.*$ - [F,L]
+
+# Forzar codificación UTF-8
+AddDefaultCharset UTF-8
