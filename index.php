@@ -163,32 +163,36 @@ declare(strict_types=1);
 
             <!-- MEDIA / HORIZONTAL SCROLL SCENE -->
             <section class="h-screen w-full relative overflow-hidden bg-white text-black" id="horizontal-scroll">
-                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000')] bg-cover bg-center opacity-10 mix-blend-multiply"></div>
+                <!-- Escena 1: MTV 2000 / Malcolm Vibe (VHS Glitch/Static) -->
+                <div class="absolute inset-0 bg-[url('https://media.giphy.com/media/3o7aD2saal6gU54VyM/giphy.gif')] bg-cover bg-center opacity-30 mix-blend-multiply" style="filter: contrast(150%) saturate(200%);"></div>
                 <div class="flex h-full items-center w-[300vw]" id="horizontal-container">
                     
                     <div class="w-screen h-full flex items-center justify-center px-10 relative">
                         <div class="max-w-4xl w-full">
                             <span class="font-sync text-orange-600 text-sm tracking-[0.2em] font-bold block mb-4">01 // VISUAL DNA</span>
-                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">10 Years<br>Of Craft.</h2>
-                            <p class="mt-6 text-xl max-w-xl font-medium">Diseño, fotografía y cinematografía. Cada pixel tiene una intención estratégica. No relleno, puro impacto.</p>
+                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter mix-blend-difference text-white">10 Years<br>Of Craft.</h2>
+                            <p class="mt-6 text-xl max-w-xl font-bold bg-white text-black p-2 inline-block uppercase">Diseño, fotografía y cinematografía. Cada pixel tiene una intención estratégica. No relleno, puro impacto.</p>
                         </div>
                     </div>
                     
-                    <div class="w-screen h-full flex items-center justify-center px-10 relative bg-black text-white">
-                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2000')] bg-cover bg-center opacity-30"></div>
+                    <!-- Escena 2: Rick and Morty (Trippy Portal 3D) -->
+                    <div class="w-screen h-full flex items-center justify-center px-10 relative bg-green-900 text-white">
+                        <div class="absolute inset-0 bg-[url('https://media.giphy.com/media/l0HlSi3AIOM3fAhX2/giphy.gif')] bg-cover bg-center opacity-60 mix-blend-screen" style="filter: hue-rotate(90deg) contrast(120%);"></div>
                         <div class="max-w-4xl w-full relative z-10">
-                            <span class="font-sync text-blue-500 text-sm tracking-[0.2em] font-bold block mb-4">02 // PHYSICAL MATTER</span>
-                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">Advanced<br>3D Fab.</h2>
-                            <p class="mt-6 text-xl max-w-xl text-slate-300 font-light">Polímeros de ingeniería. Tolerancia cero. Transformando polígonos virtuales en materia táctil a través de granjas de impresión industriales.</p>
+                            <span class="font-sync text-green-300 text-sm tracking-[0.2em] font-bold block mb-4 bg-black/50 inline-block px-2">02 // PHYSICAL MATTER</span>
+                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter drop-shadow-[0_0_15px_rgba(0,255,0,0.8)]">Advanced<br>3D Fab.</h2>
+                            <p class="mt-6 text-xl max-w-xl text-green-100 font-bold bg-black/50 p-4 backdrop-blur-sm border border-green-500/50">Polímeros de ingeniería. Tolerancia cero. Transformando polígonos virtuales en materia táctil a través de granjas de impresión industriales.</p>
                         </div>
                     </div>
 
-                    <div class="w-screen h-full flex items-center justify-center px-10 relative bg-purple-900 text-white">
-                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000')] bg-cover bg-center opacity-40 mix-blend-overlay"></div>
+                    <!-- Escena 3: Cyberpunk / Hacker 2000s -->
+                    <div class="w-screen h-full flex items-center justify-center px-10 relative bg-black text-white">
+                        <div class="absolute inset-0 bg-[url('https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif')] bg-cover bg-center opacity-50 mix-blend-screen"></div>
+                        <div class="absolute inset-0 bg-purple-900/40 mix-blend-overlay"></div>
                         <div class="max-w-4xl w-full relative z-10">
-                            <span class="font-sync text-purple-300 text-sm tracking-[0.2em] font-bold block mb-4">03 // AUTONOMOUS</span>
-                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">AI Agents &<br>Pipelines.</h2>
-                            <p class="mt-6 text-xl max-w-xl font-light">Optimización extrema para creadores. Setup de Streaming, Gaming y flujos de trabajo manejados por Inteligencia Artificial. Multiplica tu output.</p>
+                            <span class="font-sync text-purple-300 text-sm tracking-[0.2em] font-bold block mb-4 bg-white text-black inline-block px-2">03 // AUTONOMOUS</span>
+                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter drop-shadow-[4px_4px_0_#ea580c]">AI Agents &<br>Pipelines.</h2>
+                            <p class="mt-6 text-xl max-w-xl font-medium bg-black/80 p-4 border-l-4 border-purple-500">Optimización extrema para creadores. Setup de Streaming, Gaming y flujos de trabajo manejados por Inteligencia Artificial. Multiplica tu output.</p>
                         </div>
                     </div>
 
