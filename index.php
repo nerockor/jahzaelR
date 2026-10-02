@@ -106,7 +106,7 @@ declare(strict_types=1);
             opacity: 0.4;
             /* text-shadow to give that 90s pop glow */
             text-shadow: 0 0 20px currentColor;
-            backface-visibility: hidden; /* Oculta letras de atrás si quieres, pero se ve genial si se ven translúcidas, dejémoslo comentado */
+            backface-visibility: hidden; /* Oculta las letras cuando orbitan por detrás del cilindro */
         }
 
         @keyframes spin3D {
@@ -201,7 +201,7 @@ declare(strict_types=1);
                     ?>
                 </div>
 
-                <div class="text-center z-20 w-full px-6 mix-blend-difference">
+                <div class="text-center z-20 w-full px-6 relative drop-shadow-2xl">
                     <h1 class="text-[12vw] font-inter font-black uppercase leading-[0.8] tracking-tighter text-white" id="gravity-title">
                         <span class="block overflow-visible"><span class="hero-text-line block gravity-word">Creative</span></span>
                         <span class="block overflow-visible"><span class="hero-text-line block text-orange-500 italic gravity-word">Technologist.</span></span>
