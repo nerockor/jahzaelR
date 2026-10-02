@@ -335,7 +335,7 @@ declare(strict_types=1);
                         // Clonar la letra como elemento flotante independiente
                         const ghost = document.createElement('span');
                         ghost.innerHTML = letter.innerHTML;
-                        ghost.className = 'fixed font-inter font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white/80 pointer-events-auto cursor-none hover:text-red-500 transition-colors z-[10000]';
+                        ghost.className = 'gravity-letter-ghost fixed font-inter font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white/80 pointer-events-auto cursor-none hover:text-red-500 transition-colors z-[10000]';
                         ghost.style.left = rect.left + 'px';
                         ghost.style.top = rect.top + 'px';
                         document.body.appendChild(ghost);
@@ -378,6 +378,44 @@ declare(strict_types=1);
                     pin: true,
                     scrub: 1,
                     end: "+=3000" // Controla la duración del scroll horizontal
+                }
+            });
+
+            // Explosión de letras si sobrevivieron al llegar al siguiente acto (Mindset)
+            ScrollTrigger.create({
+                trigger: "#mindset",
+                start: "top 80%", // Cuando la sección Mindset entra en el 80% de la pantalla (justo después del scroll horizontal)
+                onEnter: () => {
+                    const survivingLetters = document.querySelectorAll('.gravity-letter-ghost');
+                    if(survivingLetters.length > 0) {
+                        
+                        // Flashazo de fondo
+                        const flash = document.createElement('div');
+                        flash.style.cssText = "position:fixed; inset:0; background:white; z-index:99999; pointer-events:none; mix-blend-mode:difference;";
+                        document.body.appendChild(flash);
+                        gsap.to(flash, { opacity: 0, duration: 0.5, ease: "power2.out", onComplete: () => flash.remove() });
+
+                        // Explosión
+                        survivingLetters.forEach(ghost => {
+                            const angle = Math.random() * Math.PI * 2;
+                            const velocity = 800 + Math.random() * 1500;
+                            const explodeX = Math.cos(angle) * velocity;
+                            const explodeY = Math.sin(angle) * velocity;
+                            
+                            // Efecto metralla/bomba
+                            gsap.to(ghost, {
+                                color: "#ea580c", // Naranja fuego
+                                scale: 2 + Math.random() * 3,
+                                x: `+=${explodeX}`,
+                                y: `+=${explodeY}`,
+                                rotation: (Math.random() - 0.5) * 1500,
+                                opacity: 0,
+                                duration: 0.8 + Math.random() * 0.5,
+                                ease: "expo.out",
+                                onComplete: () => ghost.remove()
+                            });
+                        });
+                    }
                 }
             });
 
