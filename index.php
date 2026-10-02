@@ -168,9 +168,11 @@ declare(strict_types=1);
                 <div class="flex h-full items-center w-[300vw]" id="horizontal-container">
                     
                     <div class="w-screen h-full flex items-center justify-center px-10 relative">
-                        <div class="max-w-4xl w-full">
+                        <!-- Capa negra al 75% de opacidad para que el texto resalte -->
+                        <div class="absolute inset-0 bg-black/75"></div>
+                        <div class="max-w-4xl w-full relative z-10">
                             <span class="font-sync text-orange-600 text-sm tracking-[0.2em] font-bold block mb-4">01 // VISUAL DNA</span>
-                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter mix-blend-difference text-white">10 Years<br>Of Craft.</h2>
+                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter text-white">10 Years<br>Of Craft.</h2>
                             <p class="mt-6 text-xl max-w-xl font-bold bg-white text-black p-2 inline-block uppercase">Diseño, fotografía y cinematografía. Cada pixel tiene una intención estratégica. No relleno, puro impacto.</p>
                         </div>
                     </div>
