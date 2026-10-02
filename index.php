@@ -393,16 +393,26 @@ declare(strict_types=1);
                         const flash = document.createElement('div');
                         flash.style.cssText = "position:fixed; inset:0; background:white; z-index:99999; pointer-events:none; mix-blend-mode:difference;";
                         document.body.appendChild(flash);
-                        gsap.to(flash, { opacity: 0, duration: 0.5, ease: "power2.out", onComplete: () => flash.remove() });
+                        gsap.to(flash, { opacity: 0, duration: 0.8, ease: "power2.out", onComplete: () => flash.remove() });
 
-                        // Explosión
+                        // Terremoto / Camera Shake de la pantalla sin EasePack
+                        gsap.to("#smooth-wrapper", {
+                            x: "random(-30, 30)",
+                            y: "random(-30, 30)",
+                            duration: 0.05,
+                            repeat: 15,
+                            yoyo: true,
+                            onComplete: () => gsap.set("#smooth-wrapper", {x: 0, y: 0})
+                        });
+
+                        // Explosión (30% más lenta y con inercia cinematográfica)
                         survivingLetters.forEach(ghost => {
                             const angle = Math.random() * Math.PI * 2;
-                            const velocity = 800 + Math.random() * 1500;
+                            const velocity = 600 + Math.random() * 1200;
                             const explodeX = Math.cos(angle) * velocity;
                             const explodeY = Math.sin(angle) * velocity;
                             
-                            // Efecto metralla/bomba
+                            // Efecto metralla/bomba en cámara lenta
                             gsap.to(ghost, {
                                 color: "#ea580c", // Naranja fuego
                                 scale: 2 + Math.random() * 3,
@@ -410,8 +420,8 @@ declare(strict_types=1);
                                 y: `+=${explodeY}`,
                                 rotation: (Math.random() - 0.5) * 1500,
                                 opacity: 0,
-                                duration: 0.8 + Math.random() * 0.5,
-                                ease: "expo.out",
+                                duration: 2.0 + Math.random() * 1.5, // 30-50% más lento
+                                ease: "power3.out", // Suave al final para efecto cámara lenta
                                 onComplete: () => ghost.remove()
                             });
                         });
