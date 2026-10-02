@@ -1,241 +1,242 @@
 <?php
-/* [PUBLIC-LANDING] - THE CREATIVE TECHNOLOGIST MANIFESTO */
+/* [PUBLIC-LANDING] - HIGH-ENERGY CREATIVE TECHNOLOGIST */
 declare(strict_types=1);
 ?>
 <!DOCTYPE html>
-<html lang="es" class="bg-slate-950 text-slate-100 antialiased" style="scroll-behavior: smooth;">
+<html lang="es" class="bg-black text-slate-100 antialiased" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jahzael Reyes | Creative Technologist & Director</title>
-    <meta name="description" content="Estudio de Dirección de Arte, Fabricación 3D de Precisión e Inteligencia Artificial.">
+    <title>Jahzael Reyes | Creative Technologist</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- GSAP & ScrollTrigger -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
     
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #020617; /* slate-950 */
-            cursor: none; /* Oculta cursor default para usar el magnético */
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #000;
+            cursor: none;
             overflow-x: hidden;
         }
+        .font-sync { font-family: 'Syncopate', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
 
-        .font-sync {
-            font-family: 'Syncopate', sans-serif;
-        }
-
-        /* Magnetic Custom Cursor */
-        .cursor-dot, .cursor-outline {
+        /* Loader */
+        #loader {
             position: fixed;
-            top: 0; left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            z-index: 9999;
-            pointer-events: none;
-        }
-        .cursor-dot {
-            width: 8px; height: 8px;
-            background-color: white;
-            mix-blend-mode: difference;
-        }
-        .cursor-outline {
-            width: 40px; height: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
-            mix-blend-mode: difference;
-        }
-
-        /* Mix Blend Modes & Glowing Orbs */
-        .blend-diff { mix-blend-mode: difference; color: #fff; }
-        .blend-screen { mix-blend-mode: screen; }
-        
-        .ambient-glow {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.6;
-            z-index: 0;
-            pointer-events: none;
-            will-change: transform;
-        }
-
-        /* SCENES */
-        .scene {
-            min-height: 100vh;
-            width: 100%;
-            position: relative;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            flex-direction: column;
         }
 
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.05);
+        /* Cursor */
+        .cursor-dot {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            width: 10px; height: 10px; background: #fff; border-radius: 50%;
+            z-index: 9999; pointer-events: none; mix-blend-mode: difference;
+        }
+        .cursor-outline {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50%; z-index: 9998; pointer-events: none;
+            transition: width 0.3s, height 0.3s, background 0.3s;
+            mix-blend-mode: difference;
         }
 
-        /* Oculta scrollbar en navegadores para un look mas limpio */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        /* Abstract Fluid Gradient Background */
+        .fluid-bg {
+            position: fixed;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(234, 88, 12, 0.15), transparent 40%),
+                        radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.15), transparent 40%),
+                        radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.15), transparent 40%);
+            z-index: 0; pointer-events: none;
+            animation: fluidRotate 20s linear infinite;
+        }
+        @keyframes fluidRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        /* Marquee */
+        .marquee {
+            white-space: nowrap; overflow: hidden; position: absolute;
+            width: 100vw; font-family: 'Syncopate', sans-serif;
+            opacity: 0.05; font-size: 10vw; font-weight: 900;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        .marquee-inner { display: inline-block; animation: marqueeScroll 20s linear infinite; }
+        .marquee-reverse { animation: marqueeScrollRev 25s linear infinite; }
+        @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes marqueeScrollRev { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+
+        /* Scene / Tech UI Borders */
+        .tech-border {
+            position: relative;
+        }
+        .tech-border::before, .tech-border::after {
+            content: ''; position: absolute; width: 10px; height: 10px; border: 2px solid #ea580c;
+        }
+        .tech-border::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .tech-border::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+        /* Hover Reveal Images */
+        .hover-image-reveal {
+            position: absolute; width: 400px; height: 500px;
+            object-fit: cover; opacity: 0; pointer-events: none; z-index: 50;
+            transform: translate(-50%, -50%) scale(0.8);
+            border-radius: 12px; filter: grayscale(100%) contrast(1.2);
+            transition: filter 0.3s;
+        }
+        .hover-trigger:hover ~ .hover-image-reveal { filter: grayscale(0%) contrast(1.1); }
+
+        .blend-diff { mix-blend-mode: difference; }
+
+        /* Crosshairs grid background */
+        .bg-grid {
+            background-size: 100px 100px;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; }
     </style>
 </head>
-<body class="relative text-slate-200">
+<body class="bg-grid">
 
-    <!-- Custom Cursor Nodes -->
+    <!-- Preloader -->
+    <div id="loader">
+        <div class="font-sync text-6xl md:text-9xl font-black text-transparent stroke-text" style="-webkit-text-stroke: 2px #ea580c;" id="loader-counter">0%</div>
+        <div class="text-xs tracking-[0.4em] uppercase mt-4 text-slate-500 font-sync">Initializing Core...</div>
+    </div>
+
+    <!-- Cursors -->
     <div class="cursor-dot hidden md:block"></div>
     <div class="cursor-outline hidden md:block"></div>
+    <img src="" id="hover-follower" class="hover-image-reveal hidden md:block">
 
-    <!-- Nav (Difference mode) -->
-    <header class="fixed top-0 w-full p-6 z-50 flex justify-between items-center blend-diff">
-        <div class="font-sync font-bold tracking-widest text-sm uppercase">JAHZAEL REYES</div>
-        <a href="mailto:info@jahzaelreyes.com.ar" class="text-xs font-sync tracking-widest uppercase hover:opacity-70 transition cursor-interaction">Colaborar</a>
+    <div class="fluid-bg"></div>
+
+    <!-- Nav -->
+    <header class="fixed top-0 w-full p-6 z-50 flex justify-between items-center mix-blend-difference text-white">
+        <div class="font-sync font-bold tracking-[0.2em] text-sm uppercase">JAHZAEL REYES <span class="text-orange-500 ml-2">///</span></div>
+        <a href="mailto:info@jahzaelreyes.com.ar" class="text-xs font-sync tracking-widest uppercase cursor-interaction border border-white/20 px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all">Start Project</a>
     </header>
 
-    <!-- MAIN SCROLL CONTAINER -->
     <main id="smooth-wrapper">
-        <div id="smooth-content">
+        <div id="smooth-content" class="relative z-10">
 
-            <!-- HERO SCENE -->
-            <section class="scene flex-col text-center z-10" id="hero">
-                <!-- Luz ambiental dinámica -->
-                <div class="ambient-glow bg-emerald-600 w-[600px] h-[600px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blend-screen"></div>
-                
-                <h1 class="hero-title text-6xl md:text-8xl lg:text-[10rem] font-black tracking-tighter z-10 uppercase leading-none blend-diff text-white" style="line-height: 0.85;">
-                    Creative<br>Technologist
-                </h1>
-                <p class="hero-sub text-slate-400 mt-10 max-w-xl mx-auto text-sm md:text-base font-light tracking-wide z-10">
-                    Art Direction. Precision 3D Fabrication. Autonomous AI Systems. 
-                    <br><br>10 años transformando instinto puro en estructuras de la nueva era.
-                </p>
-                <div class="mt-16 text-[10px] uppercase font-sync tracking-[0.3em] text-slate-500 animate-pulse z-10">
-                    [ Scroll to Explore ]
-                </div>
-            </section>
+            <!-- HERO -->
+            <section class="min-h-screen relative flex items-center justify-center overflow-hidden pt-20" id="hero">
+                <!-- Infinite Background Marquees -->
+                <div class="marquee top-[20%] text-orange-500"><div class="marquee-inner">CREATIVE TECHNOLOGIST — CREATIVE TECHNOLOGIST — CREATIVE TECHNOLOGIST — </div></div>
+                <div class="marquee top-[50%] text-purple-500"><div class="marquee-inner marquee-reverse">ART DIRECTION — 3D PRINTING — ART DIRECTION — 3D PRINTING — </div></div>
+                <div class="marquee top-[80%] text-blue-500"><div class="marquee-inner">AI AGENTS — STREAMING — AI AGENTS — STREAMING — AI AGENTS — </div></div>
 
-            <!-- ACT 01: THE ORIGIN (10 YRS MULTIMEDIA) -->
-            <section class="scene bg-slate-900 z-20 py-20" id="act-1">
-                <div class="max-w-7xl w-full px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
-                    <div class="act1-text">
-                        <span class="font-sync text-orange-500 text-xs tracking-[0.2em] uppercase block mb-4">01. The Craft</span>
-                        <h2 class="text-5xl md:text-7xl font-black mb-6 leading-tight blend-diff text-white">
-                            A Decade of<br>Visual Art.
-                        </h2>
-                        <p class="text-slate-400 font-light leading-relaxed mb-6 max-w-md">
-                            Diseño gráfico editorial, branding corporativo multimedia y cinematografía.<br>No es solo estética; es comunicación estratégica y funcional. Dominio absoluto de la luz, el lente y el píxel, forjado tras miles de horas de dirección de arte.
+                <div class="text-center z-20 w-full px-6 mix-blend-difference">
+                    <h1 class="text-[12vw] font-inter font-black uppercase leading-[0.8] tracking-tighter text-white">
+                        <span class="block overflow-hidden"><span class="hero-text-line block">Creative</span></span>
+                        <span class="block overflow-hidden"><span class="hero-text-line block text-orange-500 italic">Technologist.</span></span>
+                    </h1>
+                    <div class="mt-12 flex justify-center">
+                        <p class="text-slate-300 max-w-lg text-sm md:text-base font-light tracking-wide text-left border-l-2 border-orange-500 pl-6 hero-desc">
+                            10 años forjando realidades. Desde dirección de arte visual hasta fabricación aditiva técnica e inteligencia autónoma. No somos un producto masivo. Somos la vanguardia.
                         </p>
                     </div>
-                    <div class="act1-visual h-[400px] md:h-[600px] relative glass-panel rounded-3xl overflow-hidden flex items-center justify-center cursor-interaction">
-                        <div class="absolute w-full h-full bg-gradient-to-br from-orange-900/40 to-slate-900 mix-blend-overlay"></div>
-                        <!-- Círculo geométrico como representación abstracta -->
-                        <div class="w-48 h-48 border border-orange-500/30 rounded-full animate-[spin_20s_linear_infinite] flex items-center justify-center">
-                            <div class="w-32 h-32 border border-orange-500/50 rounded-full"></div>
-                        </div>
-                        <h3 class="absolute text-[8rem] font-black text-white/5 font-sync select-none">PIXEL</h3>
-                    </div>
+                </div>
+
+                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-xs font-sync tracking-[0.3em] uppercase text-white/50 animate-bounce">
+                    Scroll Down
                 </div>
             </section>
 
-            <!-- ACT 02: PHYSICAL MATTER (3D & POLYMERS) -->
-            <section class="scene bg-black z-30 py-20" id="act-2">
-                <div class="ambient-glow bg-blue-600/30 w-[800px] h-[800px] -right-[200px] top-0 blend-screen"></div>
-                <div class="max-w-7xl w-full px-6 relative z-10 flex flex-col md:flex-row-reverse gap-12 items-center">
-                    <div class="act2-text md:w-1/2">
-                        <span class="font-sync text-blue-500 text-xs tracking-[0.2em] uppercase block mb-4">02. Physical Matter</span>
-                        <h2 class="text-5xl md:text-7xl font-black mb-6 leading-tight text-white">
-                            Beyond<br>The Screen.
-                        </h2>
-                        <p class="text-slate-400 font-light leading-relaxed max-w-md">
-                            Del átomo digital al polímero de ingeniería. Fabricación aditiva de alto rendimiento (PETG, ABS, PPS-CF). <br><br>Operación de granjas 3D industriales para prototipado técnico, piezas mecánicas funcionales y escultura de precisión. 
-                            <br><br><span class="text-white font-medium">Cero tolerancias. Ejecución milimétrica.</span>
-                        </p>
-                    </div>
-                    <div class="act2-visual md:w-1/2 h-[400px] md:h-[600px] relative flex items-center justify-center cursor-interaction">
-                        <!-- Abstract 3D mesh wireframe representation -->
-                        <div class="w-full h-full border border-blue-500/10 rounded-[3rem] flex items-center justify-center animate-[spin_60s_linear_infinite] rotate-45">
-                            <div class="w-3/4 h-3/4 border border-blue-400/20 rounded-[2rem] flex items-center justify-center animate-[spin_40s_linear_infinite_reverse]">
-                                <div class="w-1/2 h-1/2 border border-blue-300/30 rounded-[1rem] mix-blend-screen bg-blue-900/10 backdrop-blur-3xl"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ACT 03: SYNTHETIC MIND (AI / GAMING / STREAMING) -->
-            <section class="scene bg-slate-950 z-40 relative" id="act-3">
-                <div class="ambient-glow bg-purple-600/30 w-[1000px] h-[600px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blend-screen"></div>
-                
-                <div class="w-full max-w-5xl mx-auto px-6 text-center z-10 relative">
-                    <span class="font-sync text-purple-500 text-xs tracking-[0.2em] uppercase block mb-6">03. Autonomous Intelligence</span>
-                    <h2 class="act3-title text-6xl md:text-8xl font-black mb-8 leading-tight text-white blend-diff">
-                        AI Agents &<br>Pipelines.
-                    </h2>
-                    <p class="act3-desc text-slate-400 max-w-2xl mx-auto font-light leading-relaxed text-lg">
-                        Ingeniería de sistemas autónomos y cultura interactiva. Generación de entornos inmersivos para Gaming y Live Streaming. Agentes de IA que no solo asisten, sino que <span class="text-purple-400 font-semibold">multiplican</span> el rendimiento creativo y optimizan la entrega audiovisual en tiempo real.
-                    </p>
-                </div>
-            </section>
-
-            <!-- ACT 04: THE MINDSET (ADRENALINA & ZEN) -->
-            <section class="min-h-screen bg-slate-100 z-50 text-slate-950 relative" id="act-4">
-                <div class="w-full h-full flex flex-col md:flex-row min-h-screen">
+            <!-- MEDIA / HORIZONTAL SCROLL SCENE -->
+            <section class="h-screen w-full relative overflow-hidden bg-white text-black" id="horizontal-scroll">
+                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000')] bg-cover bg-center opacity-10 mix-blend-multiply"></div>
+                <div class="flex h-full items-center w-[300vw]" id="horizontal-container">
                     
-                    <!-- Adrenalina -->
-                    <div class="w-full md:w-1/2 flex flex-col justify-center p-12 md:p-24 border-b md:border-b-0 md:border-r border-slate-300 relative overflow-hidden group cursor-interaction">
-                        <!-- Transition bg hover -->
-                        <div class="absolute inset-0 bg-orange-600 translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-[cubic-bezier(0.77,0,0.175,1)] z-0"></div>
-                        <div class="relative z-10 group-hover:text-white transition-colors duration-500">
-                            <span class="font-sync text-xs tracking-[0.2em] uppercase mb-4 block font-bold">The Instinct</span>
-                            <h2 class="text-5xl md:text-6xl font-black mb-6 leading-none">Deportes<br>Extremos</h2>
-                            <p class="font-medium text-base md:text-lg opacity-80 max-w-md leading-relaxed">
-                                Reflejos puros. Decisiones en fracciones de segundo. La gravedad y el vértigo como maestros. Ejecutar a máxima velocidad donde fallar no es una opción.
-                            </p>
+                    <div class="w-screen h-full flex items-center justify-center px-10 relative">
+                        <div class="max-w-4xl w-full">
+                            <span class="font-sync text-orange-600 text-sm tracking-[0.2em] font-bold block mb-4">01 // VISUAL DNA</span>
+                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">10 Years<br>Of Craft.</h2>
+                            <p class="mt-6 text-xl max-w-xl font-medium">Diseño, fotografía y cinematografía. Cada pixel tiene una intención estratégica. No relleno, puro impacto.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="w-screen h-full flex items-center justify-center px-10 relative bg-black text-white">
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=2000')] bg-cover bg-center opacity-30"></div>
+                        <div class="max-w-4xl w-full relative z-10">
+                            <span class="font-sync text-blue-500 text-sm tracking-[0.2em] font-bold block mb-4">02 // PHYSICAL MATTER</span>
+                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">Advanced<br>3D Fab.</h2>
+                            <p class="mt-6 text-xl max-w-xl text-slate-300 font-light">Polímeros de ingeniería. Tolerancia cero. Transformando polígonos virtuales en materia táctil a través de granjas de impresión industriales.</p>
                         </div>
                     </div>
 
-                    <!-- Zen / Meditación -->
-                    <div class="w-full md:w-1/2 flex flex-col justify-center p-12 md:p-24 relative overflow-hidden group bg-slate-950 text-slate-200 cursor-interaction">
-                        <div class="absolute inset-0 bg-slate-800 -translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-[cubic-bezier(0.77,0,0.175,1)] z-0"></div>
-                        <div class="relative z-10">
-                            <span class="font-sync text-xs tracking-[0.2em] uppercase mb-4 block font-bold text-slate-500">The Clarity</span>
-                            <h2 class="text-5xl md:text-6xl font-black mb-6 leading-none">Mindful<br>Meditation</h2>
-                            <p class="font-light text-base md:text-lg opacity-80 max-w-md leading-relaxed">
-                                El silencio absoluto tras el caos. Visión estratégica en frío, paciencia monje para pulir el detalle invisible y disciplina mental inquebrantable en cada diseño.
-                            </p>
+                    <div class="w-screen h-full flex items-center justify-center px-10 relative bg-purple-900 text-white">
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=2000')] bg-cover bg-center opacity-40 mix-blend-overlay"></div>
+                        <div class="max-w-4xl w-full relative z-10">
+                            <span class="font-sync text-purple-300 text-sm tracking-[0.2em] font-bold block mb-4">03 // AUTONOMOUS</span>
+                            <h2 class="text-6xl md:text-8xl font-black uppercase leading-none tracking-tighter">AI Agents &<br>Pipelines.</h2>
+                            <p class="mt-6 text-xl max-w-xl font-light">Optimización extrema para creadores. Setup de Streaming, Gaming y flujos de trabajo manejados por Inteligencia Artificial. Multiplica tu output.</p>
                         </div>
                     </div>
 
                 </div>
             </section>
 
-            <!-- FOOTER / CTA -->
-            <footer class="bg-black py-40 px-6 text-center relative z-50">
-                <h2 class="text-4xl md:text-6xl font-black text-white mb-10 tracking-tight">Tomar en serio cada proyecto.</h2>
-                <p class="text-slate-500 font-sync text-xs tracking-[0.3em] mb-16 uppercase">No es producción en masa. Es ingeniería creativa.</p>
+            <!-- THE MINDSET HOVER REVEAL -->
+            <section class="py-40 bg-black relative border-t border-slate-900" id="mindset">
+                <div class="max-w-6xl mx-auto px-6">
+                    <div class="text-center mb-24">
+                        <h2 class="font-sync text-orange-500 text-sm tracking-[0.3em] uppercase mb-4">The Duality</h2>
+                        <h3 class="text-4xl md:text-6xl font-black text-white">ADRENALINA & ZEN</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <!-- Card 1 -->
+                        <div class="hover-trigger relative group tech-border p-10 cursor-interaction bg-slate-950/50 backdrop-blur-md" data-image="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?q=80&w=1000">
+                            <div class="absolute inset-0 bg-orange-600/10 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500"></div>
+                            <h4 class="text-3xl font-black text-white mb-4 relative z-10 font-sync">Extreme<br>Sports</h4>
+                            <p class="text-slate-400 relative z-10 leading-relaxed font-light">Velocidad. Reflejos. Riesgo. El deporte extremo entrena la mente para tomar decisiones en fracciones de segundo. Ejecutar sin margen para dudar.</p>
+                        </div>
+                        
+                        <!-- Card 2 -->
+                        <div class="hover-trigger relative group tech-border p-10 cursor-interaction bg-slate-950/50 backdrop-blur-md" data-image="https://images.unsplash.com/photo-1545389336-cf090694435e?q=80&w=1000">
+                            <div class="absolute inset-0 bg-blue-600/10 scale-y-0 group-hover:scale-y-100 origin-bottom transition-transform duration-500"></div>
+                            <h4 class="text-3xl font-black text-white mb-4 relative z-10 font-sync">Mindful<br>Meditation</h4>
+                            <p class="text-slate-400 relative z-10 leading-relaxed font-light">Claridad. Foco quirúrgico. La capacidad de sumergirse en el detalle invisible de cada proyecto, encontrando la calma en el caos de la producción.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GIANT FOOTER -->
+            <footer class="h-screen bg-[#ea580c] text-black flex flex-col justify-center items-center relative overflow-hidden" id="footer">
+                <div class="marquee top-[10%] text-black opacity-20"><div class="marquee-inner">NO MASIVO. NO GENÉRICO. ARTESANO DIGITAL — </div></div>
+                <div class="marquee bottom-[10%] text-black opacity-20"><div class="marquee-inner marquee-reverse">HIGH PERFORMANCE — HIGH PERFORMANCE — </div></div>
                 
-                <a href="mailto:info@jahzaelreyes.com.ar" class="inline-block relative group cursor-interaction">
-                    <div class="absolute inset-0 bg-white/20 blur-2xl rounded-full group-hover:bg-white/40 transition-all duration-500"></div>
-                    <span class="relative block px-12 py-5 bg-white text-black font-sync font-bold text-sm tracking-widest uppercase rounded-full hover:scale-105 transition-transform duration-300">
-                        Iniciar Colaboración
-                    </span>
+                <h2 class="text-[8vw] font-black uppercase text-center leading-[0.8] tracking-tighter mb-12 hover:scale-105 transition-transform duration-500 cursor-interaction mix-blend-difference text-white">
+                    Let's Build<br>The Future.
+                </h2>
+                
+                <a href="mailto:info@jahzaelreyes.com.ar" class="border-2 border-black px-12 py-6 rounded-full font-sync font-bold tracking-widest text-lg hover:bg-black hover:text-white transition-all cursor-interaction">
+                    INICIAR PROYECTO
                 </a>
-                
-                <div class="mt-40 text-xs text-slate-700 font-mono flex flex-col justify-center gap-4">
-                    <span>&copy; <?= date('Y') ?> Jahzael Reyes | Creative Technologist.</span>
-                    <a href="/hub-core-kx92/" class="hover:text-slate-400 transition cursor-interaction">🔐 Private Workstation</a>
+
+                <div class="absolute bottom-6 w-full text-center font-mono text-sm font-bold opacity-50 flex flex-col gap-2">
+                    <span>© <?= date('Y') ?> JAHZAEL REYES</span>
+                    <a href="/hub-core-kx92/" class="hover:underline cursor-interaction">Workstation Access</a>
                 </div>
             </footer>
 
@@ -243,100 +244,108 @@ declare(strict_types=1);
     </main>
 
     <script>
-        // === CUSTOM CURSOR SYSTEM ===
+        // --- CUSTOM CURSOR & HOVER IMAGE REVEAL ---
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
+        const hoverFollower = document.getElementById('hover-follower');
         
-        // Solo aplicar el cursor magnético si no estamos en dispositivo táctil
         if(window.matchMedia("(pointer: fine)").matches) {
             window.addEventListener('mousemove', (e) => {
                 gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0.05 });
                 gsap.to(cursorOutline, { x: e.clientX, y: e.clientY, duration: 0.3, ease: "power2.out" });
+                
+                // Follower image logic
+                if (hoverFollower.style.opacity > 0) {
+                    gsap.to(hoverFollower, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power3.out" });
+                }
             });
 
-            // Elementos magnéticos
             document.querySelectorAll('a, button, .cursor-interaction').forEach(el => {
                 el.addEventListener('mouseenter', () => {
-                    gsap.to(cursorOutline, { scale: 1.8, borderColor: 'white', backgroundColor: 'rgba(255,255,255,0.05)', duration: 0.2 });
+                    gsap.to(cursorOutline, { scale: 2, borderColor: '#ea580c', backgroundColor: 'rgba(234, 88, 12, 0.1)', duration: 0.2 });
                 });
                 el.addEventListener('mouseleave', () => {
-                    gsap.to(cursorOutline, { scale: 1, borderColor: 'rgba(255, 255, 255, 0.4)', backgroundColor: 'transparent', duration: 0.2 });
+                    gsap.to(cursorOutline, { scale: 1, borderColor: 'rgba(255, 255, 255, 0.5)', backgroundColor: 'transparent', duration: 0.2 });
+                });
+            });
+
+            // Image Reveal Hover
+            document.querySelectorAll('.hover-trigger').forEach(el => {
+                el.addEventListener('mouseenter', (e) => {
+                    const imgUrl = el.getAttribute('data-image');
+                    hoverFollower.src = imgUrl;
+                    gsap.to(hoverFollower, { opacity: 0.6, scale: 1, duration: 0.4, x: e.clientX, y: e.clientY });
+                });
+                el.addEventListener('mouseleave', () => {
+                    gsap.to(hoverFollower, { opacity: 0, scale: 0.8, duration: 0.4 });
                 });
             });
         }
 
-        // === GSAP & SCROLLTRIGGER SETUP ===
-        gsap.registerPlugin(ScrollTrigger);
-
-        // --- HERO PARALLAX ---
-        gsap.to(".hero-title", {
-            scrollTrigger: {
-                trigger: "#hero",
-                start: "top top",
-                end: "bottom top",
-                scrub: 1
+        // --- PRELOADER ---
+        let counter = { val: 0 };
+        gsap.to(counter, {
+            val: 100,
+            duration: 2,
+            ease: "power4.inOut",
+            onUpdate: function() {
+                document.getElementById('loader-counter').innerText = Math.round(counter.val) + "%";
             },
-            y: 150,
-            opacity: 0
-        });
-
-        // --- ACT 1: THE ORIGIN ---
-        gsap.from(".act1-text", {
-            scrollTrigger: {
-                trigger: "#act-1",
-                start: "top 70%",
-                toggleActions: "play none none reverse"
-            },
-            y: 100, opacity: 0, duration: 1.2, ease: "power4.out"
-        });
-        
-        gsap.from(".act1-visual", {
-            scrollTrigger: {
-                trigger: "#act-1",
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 1.5
-            },
-            y: -100, rotation: 5
-        });
-
-        // --- ACT 2: PHYSICAL MATTER ---
-        gsap.from(".act2-text", {
-            scrollTrigger: {
-                trigger: "#act-2",
-                start: "top 70%",
-                toggleActions: "play none none reverse"
-            },
-            x: -100, opacity: 0, duration: 1.2, ease: "power4.out"
-        });
-
-        gsap.from(".act2-visual", {
-            scrollTrigger: {
-                trigger: "#act-2",
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 2
-            },
-            scale: 0.8, y: 150, rotation: -10
-        });
-
-        // --- ACT 3: AI SCENE PINNING ---
-        // Congelamos la escena 3 un momento para enfocar el texto
-        let tlAct3 = gsap.timeline({
-            scrollTrigger: {
-                trigger: "#act-3",
-                start: "top top",
-                end: "+=150%", // La pantalla se queda pegada durante 1.5x el alto de la ventana
-                pin: true,
-                scrub: 1
+            onComplete: function() {
+                gsap.to("#loader", {
+                    yPercent: -100,
+                    duration: 1,
+                    ease: "power4.inOut",
+                    onComplete: initScrollAnimations
+                });
             }
         });
-        
-        tlAct3.from(".act3-title", { scale: 0.8, opacity: 0, filter: "blur(20px)", duration: 1 })
-              .from(".act3-desc", { y: 50, opacity: 0, duration: 1 }, "-=0.5")
-              .to(".act3-title", { scale: 1.2, opacity: 0.8, filter: "blur(10px)", duration: 2 })
-              .to(".act3-desc", { opacity: 0, duration: 1 }, "-=1.5");
 
+        // --- GSAP SCROLLTRIGGER ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        function initScrollAnimations() {
+            // Hero Text Reveal
+            gsap.from(".hero-text-line", {
+                y: 200,
+                rotation: 10,
+                duration: 1.2,
+                stagger: 0.2,
+                ease: "power4.out"
+            });
+            gsap.from(".hero-desc", {
+                opacity: 0,
+                x: -50,
+                duration: 1,
+                delay: 0.8,
+                ease: "power3.out"
+            });
+
+            // Horizontal Scroll Section
+            const horizContainer = document.getElementById("horizontal-container");
+            gsap.to(horizContainer, {
+                xPercent: -66.666,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "#horizontal-scroll",
+                    pin: true,
+                    scrub: 1,
+                    end: "+=3000" // Controla la duración del scroll horizontal
+                }
+            });
+
+            // Footer Reveal effect
+            gsap.from("#footer h2", {
+                scrollTrigger: {
+                    trigger: "#footer",
+                    start: "top 80%",
+                },
+                y: 100,
+                opacity: 0,
+                duration: 1,
+                ease: "back.out(1.7)"
+            });
+        }
     </script>
 </body>
 </html>
