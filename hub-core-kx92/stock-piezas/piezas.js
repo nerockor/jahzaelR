@@ -281,11 +281,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const ingresoBruto = parseFloat(document.getElementById('venta_precio_final').value) || 0; // Es el total cobrado
         const pct = parseFloat(document.getElementById('venta_comision_pct').value) || 0;
         const fijo = parseFloat(document.getElementById('venta_comision_fija').value) || 0;
+        const empaque = parseFloat(document.getElementById('venta_costo_empaque').value) || 0;
         
         const descuentoComision = ingresoBruto * (pct / 100);
         const costoProduccion = currentCostoUnitario * cantidad;
         
-        const gananciaNeta = ingresoBruto - descuentoComision - fijo - costoProduccion;
+        const gananciaNeta = ingresoBruto - descuentoComision - fijo - empaque - costoProduccion;
         
         const previewEl = document.getElementById('venta_ganancia_preview');
         previewEl.textContent = formatARS(gananciaNeta);
@@ -310,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
         calcularGananciaPreview();
     });
 
-    ['venta_cantidad', 'venta_precio_final', 'venta_comision_pct', 'venta_comision_fija'].forEach(id => {
+    ['venta_cantidad', 'venta_precio_final', 'venta_comision_pct', 'venta_comision_fija', 'venta_costo_empaque'].forEach(id => {
         document.getElementById(id).addEventListener('input', calcularGananciaPreview);
     });
 
@@ -337,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('venta_canal').value = 'directa';
         document.getElementById('venta_comision_pct').value = 0;
         document.getElementById('venta_comision_fija').value = 0;
+        document.getElementById('venta_costo_empaque').value = 400; // Valor fijo por defecto
         
         calcularGananciaPreview();
         openModal(modalVender);
@@ -350,13 +352,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const precioUnitario = precioTotal / cantidad; // El backend espera precio unitario
         
         const comision_pct = parseFloat(document.getElementById('venta_comision_pct').value) || 0;
-        const costo_fijo = parseFloat(document.getElementById('venta_comision_fija').value) || 0;
+        const costo_fijo_envio = parseFloat(document.getElementById('venta_comision_fija').value) || 0;
+        const costo_empaque = parseFloat(document.getElementById('venta_costo_empaque').value) || 0;
+        
+        // El backend suma 'costo_fijo' a los descuentos, así que enviamos la suma de envío + empaque
+        const costo_fijo_total = costo_fijo_envio + costo_empaque;
 
         try {
             const res = await fetch('/api/piezas.php?action=vender', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'vender', pieza_id: id, cantidad, precio_unitario_ars: precioUnitario, comision_pct, costo_fijo })
+                body: JSON.stringify({ action: 'vender', pieza_id: id, cantidad, precio_unitario_ars: precioUnitario, comision_pct, costo_fijo: costo_fijo_total })
             });
             const data = await res.json();
 

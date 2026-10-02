@@ -171,9 +171,23 @@ $user = get_authenticated_user();
                     </div>
                 </div>
 
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex justify-between items-center">
-                    <span class="text-xs text-slate-400 uppercase font-semibold">Ganancia Neta Real:</span>
-                    <span class="text-emerald-400 font-bold font-mono text-lg" id="venta_ganancia_preview">$ 0.00</span>
+                <div class="space-y-2">
+                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                        <label for="venta_costo_empaque" class="text-slate-400 font-semibold flex items-center gap-2">
+                            <svg class="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            Costo Empaquetado (Fijo)
+                        </label>
+                        <div class="flex items-center gap-1">
+                            <span class="text-slate-500 font-mono">$</span>
+                            <input type="number" id="venta_costo_empaque" step="any" min="0" value="400" 
+                                   class="w-20 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-rose-300 font-bold text-right font-mono focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex justify-between items-center">
+                        <span class="text-xs text-slate-400 uppercase font-semibold">Ganancia Neta Real:</span>
+                        <span class="text-emerald-400 font-bold font-mono text-lg" id="venta_ganancia_preview">$ 0.00</span>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">
@@ -317,6 +331,6 @@ $user = get_authenticated_user();
         </div>
     </div>
 
-    <script src="/hub-core-kx92/stock-piezas/piezas.js?v=1790945433"></script>
+    <script src="/hub-core-kx92/stock-piezas/piezas.js?v=1790947511"></script>
 </body>
 </html>
