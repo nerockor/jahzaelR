@@ -79,6 +79,45 @@ declare(strict_types=1);
         @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes marqueeScrollRev { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
 
+        /* 3D Planetary Cylinder */
+        .scene-3d {
+            position: absolute; inset: 0;
+            perspective: 1000px;
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 0; pointer-events: none;
+        }
+        .orbit-ring {
+            position: absolute;
+            transform-style: preserve-3d;
+            width: 100%; height: 100%;
+        }
+        .orbit-ring-1 { animation: spin3D 25s linear infinite; }
+        .orbit-ring-2 { animation: spin3DRev 30s linear infinite; }
+        .orbit-ring-3 { animation: spin3D 20s linear infinite; }
+
+        .orbit-word {
+            position: absolute;
+            top: 50%; left: 50%;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 900;
+            font-size: 6vw;
+            white-space: nowrap;
+            opacity: 0.4;
+            /* text-shadow to give that 90s pop glow */
+            text-shadow: 0 0 20px currentColor;
+            backface-visibility: hidden; /* Oculta letras de atrás si quieres, pero se ve genial si se ven translúcidas, dejémoslo comentado */
+        }
+
+        @keyframes spin3D {
+            0% { transform: rotateX(-10deg) rotateY(0deg); }
+            100% { transform: rotateX(-10deg) rotateY(360deg); }
+        }
+        @keyframes spin3DRev {
+            0% { transform: rotateX(10deg) rotateY(360deg); }
+            100% { transform: rotateX(10deg) rotateY(0deg); }
+        }
+
         /* Scene / Tech UI Borders */
         .tech-border {
             position: relative;
@@ -139,10 +178,28 @@ declare(strict_types=1);
 
             <!-- HERO -->
             <section class="min-h-screen relative flex items-center justify-center overflow-hidden pt-20" id="hero">
-                <!-- Infinite Background Marquees -->
-                <div class="marquee top-[20%] text-orange-500"><div class="marquee-inner">CREATIVE TECHNOLOGIST — CREATIVE TECHNOLOGIST — CREATIVE TECHNOLOGIST — </div></div>
-                <div class="marquee top-[50%] text-purple-500"><div class="marquee-inner marquee-reverse">ART DIRECTION — 3D PRINTING — ART DIRECTION — 3D PRINTING — </div></div>
-                <div class="marquee top-[80%] text-blue-500"><div class="marquee-inner">AI AGENTS — STREAMING — AI AGENTS — STREAMING — AI AGENTS — </div></div>
+                <!-- Planetary 3D Cylinder Orbits -->
+                <div class="scene-3d">
+                    <?php
+                    // Configuración de los anillos orbitales con colores pop
+                    $rings = [
+                        ['text' => 'CREATIVE TECHNOLOGIST', 'class' => 'orbit-ring-1', 'color' => '#ff00ff', 'y' => '-25%'], // Magenta Neon
+                        ['text' => 'ART DIRECTION & 3D FAB', 'class' => 'orbit-ring-2', 'color' => '#00ffff', 'y' => '0%'],   // Cyan
+                        ['text' => 'AI AGENTS & STREAMING', 'class' => 'orbit-ring-3', 'color' => '#39ff14', 'y' => '25%'],   // Lime Green
+                    ];
+                    
+                    foreach($rings as $ring) {
+                        echo "<div class='orbit-ring {$ring['class']}' style='top: {$ring['y']}; color: {$ring['color']};'>";
+                        $segments = 12; // 12 repeticiones de la palabra para cerrar el cilindro
+                        for($i=0; $i<$segments; $i++) {
+                            $angle = ($i / $segments) * 360;
+                            // El radio (translateZ) es 60vw para que se vea ancho y envuelva la pantalla
+                            echo "<div class='orbit-word' style='transform: translate(-50%, -50%) rotateY({$angle}deg) translateZ(55vw);'>{$ring['text']}</div>";
+                        }
+                        echo "</div>";
+                    }
+                    ?>
+                </div>
 
                 <div class="text-center z-20 w-full px-6 mix-blend-difference">
                     <h1 class="text-[12vw] font-inter font-black uppercase leading-[0.8] tracking-tighter text-white" id="gravity-title">
