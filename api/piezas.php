@@ -371,7 +371,14 @@ function manejar_vender_pieza(PDO $pdo, array $input): void
         }
 
         // 3. Insertar en tabla de ventas (Append-Only) apuntando al registro vendido
-        $ganancia_neta = round(($precio_unitario - $costo_unitario) * $cantidad, 2);
+        $comision_pct = max(0, floatval($input['comision_pct'] ?? 0));
+        $costo_fijo = max(0, floatval($input['costo_fijo'] ?? 0));
+        
+        $ingreso_bruto = $precio_unitario * $cantidad;
+        $comision_descuento = $ingreso_bruto * ($comision_pct / 100);
+        $costo_produccion = $costo_unitario * $cantidad;
+        
+        $ganancia_neta = round($ingreso_bruto - $comision_descuento - $costo_fijo - $costo_produccion, 2);
 
         $sqlVenta = 'INSERT INTO ventas (pieza_id, cantidad, precio_unitario_ars, costo_unitario_ars, ganancia_neta_ars)
                      VALUES (:pieza_id, :cantidad, :precio, :costo, :ganancia)';

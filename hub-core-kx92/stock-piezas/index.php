@@ -135,13 +135,45 @@ $user = get_authenticated_user();
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Cantidad</label>
                         <input type="number" id="venta_cantidad" step="1" min="1" value="1" required
-                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 font-mono font-bold text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 font-mono font-bold text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Precio Cobrado ($ ARS)</label>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Precio Cobrado (c/u)</label>
                         <input type="number" id="venta_precio_final" step="any" required
-                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 font-mono font-bold text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 font-mono font-bold text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
+                </div>
+
+                <!-- Canal y Comisiones -->
+                <div class="space-y-3 p-3 bg-slate-900 border border-slate-800 rounded-xl">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Canal de Venta</label>
+                        <select id="venta_canal" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 text-sm focus:outline-none focus:border-emerald-500">
+                            <option value="directa">Venta Directa / Efectivo (0%)</option>
+                            <option value="ml_clasica">MercadoLibre Clásica (~15%)</option>
+                            <option value="ml_premium">MercadoLibre Premium (~30%)</option>
+                            <option value="tienda_online">Tienda Online + MP (~8%)</option>
+                            <option value="personalizado">Personalizado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Comisión / Impuestos (%)</label>
+                            <input type="number" id="venta_comision_pct" step="any" min="0" value="0" 
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-300 text-sm font-mono focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Costo Fijo (Envío, etc) $</label>
+                            <input type="number" id="venta_comision_fija" step="any" min="0" value="0" 
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-300 text-sm font-mono focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex justify-between items-center">
+                    <span class="text-xs text-slate-400 uppercase font-semibold">Ganancia Neta Real:</span>
+                    <span class="text-emerald-400 font-bold font-mono text-lg" id="venta_ganancia_preview">$ 0.00</span>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2">

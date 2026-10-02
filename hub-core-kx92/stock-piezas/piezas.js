@@ -274,19 +274,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Modal Vender
+    let currentCostoUnitario = 0;
+    
+    function calcularGananciaPreview() {
+        const cantidad = parseInt(document.getElementById('venta_cantidad').value, 10) || 1;
+        const precio = parseFloat(document.getElementById('venta_precio_final').value) || 0;
+        const pct = parseFloat(document.getElementById('venta_comision_pct').value) || 0;
+        const fijo = parseFloat(document.getElementById('venta_comision_fija').value) || 0;
+        
+        const ingresoBruto = precio * cantidad;
+        const descuentoComision = ingresoBruto * (pct / 100);
+        const costoProduccion = currentCostoUnitario * cantidad;
+        
+        const gananciaNeta = ingresoBruto - descuentoComision - fijo - costoProduccion;
+        
+        const previewEl = document.getElementById('venta_ganancia_preview');
+        previewEl.textContent = formatARS(gananciaNeta);
+        
+        if (gananciaNeta < 0) {
+            previewEl.classList.remove('text-emerald-400');
+            previewEl.classList.add('text-red-400');
+        } else {
+            previewEl.classList.remove('text-red-400');
+            previewEl.classList.add('text-emerald-400');
+        }
+    }
+
+    document.getElementById('venta_canal').addEventListener('change', (e) => {
+        const pctInput = document.getElementById('venta_comision_pct');
+        switch(e.target.value) {
+            case 'directa': pctInput.value = 0; break;
+            case 'ml_clasica': pctInput.value = 15; break;
+            case 'ml_premium': pctInput.value = 30; break;
+            case 'tienda_online': pctInput.value = 8; break;
+        }
+        calcularGananciaPreview();
+    });
+
+    ['venta_cantidad', 'venta_precio_final', 'venta_comision_pct', 'venta_comision_fija'].forEach(id => {
+        document.getElementById(id).addEventListener('input', calcularGananciaPreview);
+    });
+
     window.abrirModalVender = (id, nombre, costo, precio) => {
         document.getElementById('venta_pieza_id').value = id;
         document.getElementById('venta_pieza_nombre').textContent = nombre;
-        document.getElementById('venta_costo_unitario').textContent = formatARS(costo);
-        document.getElementById('venta_precio_sugerido').textContent = formatARS(precio);
         
-        // Determinar cantidad inicial sugerida
+        // Determinar cantidad del lote para dividir costos y precios si aplica
         let cantidad_lote = 1;
         const match = nombre.match(/\(x(\d+)\)$/);
         if (match) cantidad_lote = parseInt(match[1], 10);
         
+        currentCostoUnitario = costo / cantidad_lote;
+        const precioUnitario = precio / cantidad_lote;
+
+        document.getElementById('venta_costo_unitario').textContent = formatARS(currentCostoUnitario) + (cantidad_lote > 1 ? ' (c/u)' : '');
+        document.getElementById('venta_precio_sugerido').textContent = formatARS(precioUnitario) + (cantidad_lote > 1 ? ' (c/u)' : '');
+        
         document.getElementById('venta_cantidad').value = cantidad_lote;
-        document.getElementById('venta_precio_final').value = precio / cantidad_lote;
+        document.getElementById('venta_precio_final').value = precioUnitario;
+        
+        // Reset comisiones
+        document.getElementById('venta_canal').value = 'directa';
+        document.getElementById('venta_comision_pct').value = 0;
+        document.getElementById('venta_comision_fija').value = 0;
+        
+        calcularGananciaPreview();
         openModal(modalVender);
     };
 
@@ -295,18 +347,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = parseInt(document.getElementById('venta_pieza_id').value, 10);
         const cantidad = parseInt(document.getElementById('venta_cantidad').value, 10) || 1;
         const precio = parseFloat(document.getElementById('venta_precio_final').value);
+        const comision_pct = parseFloat(document.getElementById('venta_comision_pct').value) || 0;
+        const costo_fijo = parseFloat(document.getElementById('venta_comision_fija').value) || 0;
 
         try {
             const res = await fetch('/api/piezas.php?action=vender', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'vender', pieza_id: id, cantidad, precio_unitario_ars: precio })
+                body: JSON.stringify({ action: 'vender', pieza_id: id, cantidad, precio_unitario_ars: precio, comision_pct, costo_fijo })
             });
             const data = await res.json();
 
             if (data.status === 'success') {
                 closeModal(modalVender);
-                showToast(`Venta confirmada. Ganancia: +${formatARS(data.ganancia_neta_ars)}`, 'success');
+                showToast(`Venta confirmada. Ganancia: ${data.ganancia_neta_ars >= 0 ? '+' : ''}${formatARS(data.ganancia_neta_ars)}`, 'success');
                 cargarPiezas(); // Recargar para reflejar división de lote
             } else {
                 throw new Error(data.message);
