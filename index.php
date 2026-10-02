@@ -145,9 +145,9 @@ declare(strict_types=1);
                 <div class="marquee top-[80%] text-blue-500"><div class="marquee-inner">AI AGENTS — STREAMING — AI AGENTS — STREAMING — AI AGENTS — </div></div>
 
                 <div class="text-center z-20 w-full px-6 mix-blend-difference">
-                    <h1 class="text-[12vw] font-inter font-black uppercase leading-[0.8] tracking-tighter text-white">
-                        <span class="block overflow-hidden"><span class="hero-text-line block">Creative</span></span>
-                        <span class="block overflow-hidden"><span class="hero-text-line block text-orange-500 italic">Technologist.</span></span>
+                    <h1 class="text-[12vw] font-inter font-black uppercase leading-[0.8] tracking-tighter text-white" id="gravity-title">
+                        <span class="block overflow-visible"><span class="hero-text-line block gravity-word">Creative</span></span>
+                        <span class="block overflow-visible"><span class="hero-text-line block text-orange-500 italic gravity-word">Technologist.</span></span>
                     </h1>
                     <div class="mt-12 flex justify-center">
                         <p class="text-slate-300 max-w-lg text-sm md:text-base font-light tracking-wide text-left border-l-2 border-orange-500 pl-6 hero-desc">
@@ -305,20 +305,67 @@ declare(strict_types=1);
         gsap.registerPlugin(ScrollTrigger);
 
         function initScrollAnimations() {
-            // Hero Text Reveal
+            // Dividir las palabras en letras para el efecto gravedad
+            document.querySelectorAll('.gravity-word').forEach(word => {
+                const text = word.innerText;
+                word.innerHTML = text.split('').map(char => `<span class="gravity-letter inline-block hover:text-red-500 cursor-none transition-colors duration-300 pointer-events-auto">${char === ' ' ? '&nbsp;' : char}</span>`).join('');
+            });
+
+            // Animación inicial del hero
             gsap.from(".hero-text-line", {
-                y: 200,
-                rotation: 10,
-                duration: 1.2,
-                stagger: 0.2,
-                ease: "power4.out"
+                y: 200, rotation: 10, duration: 1.2, stagger: 0.2, ease: "power4.out"
             });
             gsap.from(".hero-desc", {
-                opacity: 0,
-                x: -50,
-                duration: 1,
-                delay: 0.8,
-                ease: "power3.out"
+                opacity: 0, x: -50, duration: 1, delay: 0.8, ease: "power3.out"
+            });
+
+            // Configurar el efecto de gravedad al scrollear hacia abajo
+            let gravityTriggered = false;
+            ScrollTrigger.create({
+                trigger: "#horizontal-scroll",
+                start: "top bottom", // Se activa cuando la siguiente sección toca abajo
+                onEnter: () => {
+                    if(gravityTriggered) return;
+                    gravityTriggered = true;
+
+                    const letters = document.querySelectorAll('.gravity-letter');
+                    letters.forEach((letter) => {
+                        const rect = letter.getBoundingClientRect();
+                        
+                        // Clonar la letra como elemento flotante independiente
+                        const ghost = document.createElement('span');
+                        ghost.innerHTML = letter.innerHTML;
+                        ghost.className = 'fixed font-inter font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white/80 pointer-events-auto cursor-none hover:text-red-500 transition-colors z-[10000]';
+                        ghost.style.left = rect.left + 'px';
+                        ghost.style.top = rect.top + 'px';
+                        document.body.appendChild(ghost);
+
+                        // Ocultar letra original
+                        letter.style.opacity = '0';
+
+                        // Animar caída al fondo de la pantalla (Gravedad)
+                        const dropY = window.innerHeight - rect.top - (rect.height * 0.8) - (Math.random() * 40);
+                        const randomRot = (Math.random() - 0.5) * 60;
+                        const randomX = (Math.random() - 0.5) * 100;
+
+                        gsap.to(ghost, {
+                            y: dropY,
+                            x: randomX,
+                            rotation: randomRot,
+                            duration: 1 + Math.random(),
+                            ease: "bounce.out"
+                        });
+
+                        // Eliminar con el ratón (Hover Eraser)
+                        ghost.addEventListener('mouseenter', () => {
+                            gsap.to(ghost, {
+                                scale: 0, opacity: 0, rotation: randomRot + 180,
+                                duration: 0.4, ease: "back.in(2)",
+                                onComplete: () => ghost.remove()
+                            });
+                        });
+                    });
+                }
             });
 
             // Horizontal Scroll Section
