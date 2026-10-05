@@ -78,9 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
      * 100% el aislamiento modular estricto sin colisión de scripts ni estilos.
      */
     function renderEmbeddedModule(srcUrl) {
+        const cacheBuster = srcUrl.includes('?') ? '&v=' + Date.now() : '?v=' + Date.now();
         moduleContainer.innerHTML = `
             <div class="w-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative" style="height: calc(100vh - 140px); min-height: 700px;">
-                <iframe src="${srcUrl}" 
+                <iframe src="${srcUrl}${cacheBuster}" 
                         class="w-full h-full border-0" 
                         title="Módulo Aislado">
                 </iframe>

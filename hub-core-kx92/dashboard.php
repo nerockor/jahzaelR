@@ -143,6 +143,6 @@ $user = get_authenticated_user();
 
     <!-- SCRIPTS CORE -->
     <script src="/hub-core-kx92/assets/js/chart.min.js"></script>
-    <script src="/hub-core-kx92/assets/js/app.js"></script>
+    <script src="/hub-core-kx92/assets/js/app.js?v=<?= date('U') ?>"></script>
 </body>
 </html>
