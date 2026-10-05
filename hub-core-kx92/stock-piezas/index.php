@@ -269,16 +269,23 @@ $user = get_authenticated_user();
     <div id="modal_pieza" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white">Alta de Pieza en Stock</h3>
+                <h3 id="modal_pieza_title" class="text-base font-bold text-white">Alta de Pieza en Stock</h3>
                 <button type="button" class="btn-close-modal text-slate-400 hover:text-white">&times;</button>
             </div>
 
             <form id="form_pieza" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Nombre o Modelo 3D</label>
-                    <input type="text" id="pieza_nombre" required
-                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                           placeholder="ej: Soporte GoPro Brazo Pivotante">
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="col-span-3">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Nombre o Modelo 3D</label>
+                        <input type="text" id="pieza_nombre" required
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                               placeholder="ej: Soporte GoPro Brazo Pivotante">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Cant.</label>
+                        <input type="number" id="pieza_cantidad" required min="1" step="1" value="1"
+                               class="w-full bg-emerald-950 border border-emerald-800/50 rounded-xl px-3 py-2 text-emerald-300 text-sm font-bold font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -289,25 +296,25 @@ $user = get_authenticated_user();
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Peso Consumido (g)</label>
-                        <input type="number" id="pieza_peso_g" required min="1" step="1" value="80"
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Peso Unitario (g)</label>
+                        <input type="number" id="pieza_peso_g" required min="1" step="any" value="80"
                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Horas Impresión</label>
-                        <input type="number" id="pieza_horas" required min="0.1" step="0.1" value="4.0"
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Horas Un. (hs)</label>
+                        <input type="number" id="pieza_horas" required min="0.1" step="any" value="4.0"
                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Costo Prod. ($)</label>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Costo Un. ($)</label>
                         <input type="number" id="pieza_costo" required min="1" step="any" value="1923.60"
                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Precio Venta ($)</label>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Precio Un. ($)</label>
                         <input type="number" id="pieza_precio" required min="1" step="any" value="3206.00"
                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>

@@ -274,6 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 Descarte registrado (Scrap)
                             </div>
                         `}
+                        <button type="button" onclick="window.duplicarPieza(${p.id})" class="w-full mt-2 py-2 px-3 rounded-xl text-[11px] font-bold uppercase tracking-wider text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 hover:border-slate-600 transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Reimprimir / Restock
+                        </button>
                     </div>
                 </div>
             `;
@@ -482,9 +488,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Modal Alta de Pieza
+    window.duplicarPieza = async (id) => {
+        const pieza = piezasData.find(p => p.id === id);
+        if (!pieza) return;
+        
+        await cargarFilamentosParaSelect();
+        formPieza.reset();
+        
+        let baseNombre = pieza.nombre;
+        let baseCant = 1;
+        const match = baseNombre.match(/\(x(\d+)\)$/);
+        if (match) {
+            baseCant = parseInt(match[1], 10);
+            baseNombre = baseNombre.replace(/\s*\(x\d+\)$/, '');
+        }
+
+        document.getElementById('pieza_nombre').value = baseNombre;
+        document.getElementById('pieza_cantidad').value = 1;
+        
+        // Asignar los valores unitarios
+        document.getElementById('pieza_filamento_id').value = pieza.filamento_id;
+        document.getElementById('pieza_peso_g').value = (pieza.peso_g / baseCant).toFixed(0);
+        document.getElementById('pieza_horas').value = (pieza.horas_impresion / baseCant).toFixed(2);
+        document.getElementById('pieza_costo').value = (pieza.costo_produccion_ars / baseCant).toFixed(2);
+        document.getElementById('pieza_precio').value = (pieza.precio_venta_ars / baseCant).toFixed(2);
+        
+        document.getElementById('modal_pieza_title').textContent = 'Reimprimir / Restock de Pieza';
+        openModal(modalPieza);
+    };
+
     btnNuevaPieza.addEventListener('click', () => {
         cargarFilamentosParaSelect();
         formPieza.reset();
+        document.getElementById('modal_pieza_title').textContent = 'Alta de Nueva Pieza';
+        document.getElementById('pieza_cantidad').value = "1";
         document.getElementById('pieza_horas').value = "4.0";
         document.getElementById('pieza_peso_g').value = "80";
         document.getElementById('pieza_costo').value = "1923.60";
@@ -494,14 +531,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     formPieza.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        const cant = parseInt(document.getElementById('pieza_cantidad').value, 10) || 1;
+        let baseNombre = document.getElementById('pieza_nombre').value.trim();
+        if (cant > 1) {
+            baseNombre += ` (x${cant})`;
+        }
+
         const payload = {
             action: 'crear',
-            nombre: document.getElementById('pieza_nombre').value.trim(),
+            nombre: baseNombre,
             filamento_id: parseInt(document.getElementById('pieza_filamento_id').value, 10),
-            peso_g: parseInt(document.getElementById('pieza_peso_g').value, 10),
-            horas_impresion: parseFloat(document.getElementById('pieza_horas').value),
-            costo_produccion_ars: parseFloat(document.getElementById('pieza_costo').value),
-            precio_venta_ars: parseFloat(document.getElementById('pieza_precio').value),
+            peso_g: Math.round(parseFloat(document.getElementById('pieza_peso_g').value) * cant),
+            horas_impresion: parseFloat(document.getElementById('pieza_horas').value) * cant,
+            costo_produccion_ars: parseFloat(document.getElementById('pieza_costo').value) * cant,
+            precio_venta_ars: parseFloat(document.getElementById('pieza_precio').value) * cant,
             descontar_bobina: document.getElementById('pieza_descontar_bobina').checked
         };
 
