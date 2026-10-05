@@ -287,6 +287,6 @@ $user = get_authenticated_user();
         </div>
     </div>
 
-    <script src="/hub-core-kx92/filamentos/filamentos.js"></script>
+    <script src="/hub-core-kx92/filamentos/filamentos.js?v=<?= date('U') ?>"></script>
 </body>
 </html>
