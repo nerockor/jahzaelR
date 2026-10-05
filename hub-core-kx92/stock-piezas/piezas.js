@@ -199,7 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${badgeClass}">
                                 ${badgeText}
                             </span>
-                            <span class="text-xs text-slate-500 font-mono">#${p.id}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-500 font-mono">#${p.id}</span>
+                                <button type="button" onclick="window.eliminarPieza(${p.id})" title="Archivar/Ocultar" class="text-slate-600 hover:text-red-500 transition focus:outline-none">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <h3 class="font-bold text-base text-white leading-tight mb-2">${p.nombre}</h3>
@@ -412,6 +419,28 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast(err.message, 'error');
         }
     });
+
+    // Eliminar / Archivar Pieza
+    window.eliminarPieza = async (id) => {
+        if (!confirm('¿Estás seguro de que quieres ocultar/archivar esta pieza del panel principal?')) return;
+        
+        try {
+            const res = await fetch('/api/piezas.php?action=eliminar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                showToast('Pieza archivada y ocultada del panel.', 'success');
+                cargarData();
+            } else {
+                throw new Error(data.message);
+            }
+        } catch (err) {
+            showToast('Error al eliminar: ' + err.message, 'error');
+        }
+    };
 
     // Modal Scrap
     window.abrirModalScrap = (id) => {

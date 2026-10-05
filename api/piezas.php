@@ -68,6 +68,10 @@ switch ($action) {
         manejar_cambiar_estado($pdo, $input);
         break;
 
+    case 'eliminar':
+        manejar_eliminar_pieza($pdo, $input);
+        break;
+
     case 'editar_precio':
         manejar_editar_precio($pdo, $input);
         break;
@@ -122,9 +126,11 @@ function manejar_listar_piezas(PDO $pdo): void
     ';
 
     $params = [];
-    if ($estado_filtro !== '' && in_array($estado_filtro, ['en_produccion', 'en_stock', 'vendida', 'dañada'], true)) {
+    if ($estado_filtro !== '' && in_array($estado_filtro, ['en_produccion', 'en_stock', 'vendida', 'dañada', 'archivada'], true)) {
         $sql .= ' WHERE p.estado = :estado';
         $params[':estado'] = $estado_filtro;
+    } else {
+        $sql .= ' WHERE p.estado != "archivada"';
     }
 
     $sql .= ' ORDER BY p.id DESC';
@@ -543,4 +549,23 @@ function manejar_cambiar_estado(PDO $pdo, array $input): void
     $stmt->execute([':est' => $nuevo_estado, ':id' => $id]);
 
     echo json_encode(['status' => 'success', 'message' => 'Estado actualizado.'], JSON_UNESCAPED_UNICODE);
+}
+
+/**
+ * Archiva/Oculta una pieza definitivamente del panel principal (Soft Delete).
+ */
+function manejar_eliminar_pieza(PDO $pdo, array $input): void
+{
+    $id = intval($input['id'] ?? 0);
+
+    if ($id <= 0) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'message' => 'ID de pieza inválido.'], JSON_UNESCAPED_UNICODE);
+        return;
+    }
+
+    $stmt = $pdo->prepare('UPDATE piezas_stock SET estado = "archivada" WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+
+    echo json_encode(['status' => 'success', 'message' => 'Pieza archivada exitosamente.'], JSON_UNESCAPED_UNICODE);
 }
