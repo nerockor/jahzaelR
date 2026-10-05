@@ -338,6 +338,6 @@ $user = get_authenticated_user();
         </div>
     </div>
 
-    <script src="/hub-core-kx92/stock-piezas/piezas.js?v=1790947511"></script>
+    <script src="/hub-core-kx92/stock-piezas/piezas.js?v=<?= date('U') ?>"></script>
 </body>
 </html>
