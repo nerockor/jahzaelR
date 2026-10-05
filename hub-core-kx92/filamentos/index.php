@@ -227,23 +227,31 @@ $user = get_authenticated_user();
                                placeholder="Negro, Rojo, Plata...">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Peso Inicial (g)</label>
-                        <input type="number" id="bobina_peso_inicial" required min="100" step="any" value="1000" 
-                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Peso Un. (g)</label>
+                        <input type="number" id="bobina_peso_unidad" required min="100" step="any" value="1000" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
+                               placeholder="Peso x 1 bobina">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Costo Rollo ($ ARS)</label>
-                        <input type="number" id="bobina_costo" required min="1" step="any" value="22000" 
-                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Costo Un. ($ ARS)</label>
+                        <input type="number" id="bobina_costo_unidad" required min="1" step="any" value="17000" 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
+                               placeholder="Precio x 1 bobina">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Alerta Mínima (g)</label>
-                        <input type="number" id="bobina_alerta" required min="10" step="any" value="150" 
-                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1">Cant. Bobinas</label>
+                        <input type="number" id="bobina_cantidad" required min="1" step="1" value="1" 
+                               class="w-full bg-emerald-950 border border-emerald-800/50 rounded-xl px-3 py-2 text-emerald-300 text-sm font-bold font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Alerta Mínima Global (g)</label>
+                    <input type="number" id="bobina_alerta" required min="10" step="any" value="150" 
+                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500">
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">

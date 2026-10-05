@@ -378,7 +378,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal_bobina_title').textContent = 'Nueva Bobina de Filamento';
         document.getElementById('bobina_id').value = '';
         formBobina.reset();
-        document.getElementById('bobina_peso_inicial').disabled = false;
+        document.getElementById('bobina_peso_unidad').disabled = false;
+        document.getElementById('bobina_cantidad').disabled = false;
         openModal(modalBobina);
     });
 
@@ -388,9 +389,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('bobina_marca').value = f.marca;
         document.getElementById('bobina_material').value = f.material;
         document.getElementById('bobina_color').value = f.color;
-        document.getElementById('bobina_peso_inicial').value = f.peso_inicial_g;
-        document.getElementById('bobina_peso_inicial').disabled = true;
-        document.getElementById('bobina_costo').value = f.costo_rollo_ars;
+        
+        // En edición, no sabemos cuántas bobinas eran originalmente de forma directa.
+        // Pero sabemos el costo por gramo. Así que podemos mostrar 1 bobina equivalente al total para no romper la matemática.
+        // O mejor: mostrar el peso original total y costo total asumiendo 1 bobina (lote total).
+        document.getElementById('bobina_peso_unidad').value = f.peso_inicial_g;
+        document.getElementById('bobina_peso_unidad').disabled = true;
+        document.getElementById('bobina_cantidad').value = 1;
+        document.getElementById('bobina_cantidad').disabled = true; // No permitir cambiar cantidad al editar
+
+        document.getElementById('bobina_costo_unidad').value = f.costo_rollo_ars;
         document.getElementById('bobina_alerta').value = f.alerta_stock_minimo_g;
         openModal(modalBobina);
     };
@@ -398,13 +406,19 @@ document.addEventListener('DOMContentLoaded', () => {
     formBobina.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('bobina_id').value;
+        
+        // Multiplicar por cantidad
+        const cant = parseInt(document.getElementById('bobina_cantidad').value, 10) || 1;
+        const pesoUnidad = parseInt(document.getElementById('bobina_peso_unidad').value, 10);
+        const costoUnidad = parseFloat(document.getElementById('bobina_costo_unidad').value);
+        
         const payload = {
             id: id ? parseInt(id, 10) : undefined,
             marca: document.getElementById('bobina_marca').value.trim(),
             material: document.getElementById('bobina_material').value,
             color: document.getElementById('bobina_color').value.trim(),
-            peso_inicial_g: parseInt(document.getElementById('bobina_peso_inicial').value, 10),
-            costo_rollo_ars: parseFloat(document.getElementById('bobina_costo').value),
+            peso_inicial_g: pesoUnidad * cant,
+            costo_rollo_ars: costoUnidad * cant,
             alerta_stock_minimo_g: parseInt(document.getElementById('bobina_alerta').value, 10),
             action: id ? 'editar' : 'crear'
         };
