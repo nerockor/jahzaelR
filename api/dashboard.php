@@ -47,12 +47,7 @@ function obtener_metricas_dashboard(?PDO $pdo): array
     $capital_inmovilizado_stock_ars = 0.0;
     $valor_venta_stock_ars = 0.0;
 
-    $materiales_distribucion = [
-        'PLA' => 0,
-        'PETG' => 0,
-        'ABS' => 0,
-        'TPU' => 0
-    ];
+    $materiales_distribucion = [];
 
     $historico_ventas = [
         'labels' => ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
@@ -62,6 +57,8 @@ function obtener_metricas_dashboard(?PDO $pdo): array
 
     if ($pdo !== null) {
         try {
+            $isSqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+
             // 1. Queries agregadas de Ventas: SUM(ganancia_neta_ars) y facturación total
             $stmtVentas = $pdo->query('
                 SELECT 
@@ -77,8 +74,7 @@ function obtener_metricas_dashboard(?PDO $pdo): array
                 $cantidad_ventas = (int)$rowV['total_cantidad'];
             }
 
-            // Ventas del mes actual
-            $isSqlite = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite';
+            // Ventas del mes actual (últimos 30 días)
             $dateClause = $isSqlite ? "datetime('now', '-30 days')" : "DATE_SUB(NOW(), INTERVAL 30 DAY)";
             $stmtMes = $pdo->query("
                 SELECT 
@@ -91,6 +87,34 @@ function obtener_metricas_dashboard(?PDO $pdo): array
             if ($rowMes) {
                 $ventas_mes_ars = (float)$rowMes['mes_facturado'];
                 $piezas_vendidas_mes = (int)$rowMes['mes_piezas'];
+            }
+
+            // Gráfico 2: Ventas reales de las últimas 4 semanas (Sem 1 a Sem 4)
+            $daysAgo = $isSqlite ? "datetime('now', '-28 days')" : "DATE_SUB(NOW(), INTERVAL 28 DAY)";
+            $stmtHist = $pdo->query("
+                SELECT fecha_venta, (precio_unitario_ars * cantidad) AS monto, cantidad
+                FROM ventas
+                WHERE fecha_venta >= {$daysAgo}
+                ORDER BY fecha_venta ASC
+            ");
+            $ventasRows = $stmtHist->fetchAll();
+            if (!empty($ventasRows)) {
+                $now = time();
+                foreach ($ventasRows as $vr) {
+                    $vTime = strtotime((string)$vr['fecha_venta']);
+                    $diffDays = floor(($now - $vTime) / 86400);
+                    if ($diffDays < 7) {
+                        $idx = 3; // Sem 4 (más reciente)
+                    } elseif ($diffDays < 14) {
+                        $idx = 2; // Sem 3
+                    } elseif ($diffDays < 21) {
+                        $idx = 1; // Sem 2
+                    } else {
+                        $idx = 0; // Sem 1
+                    }
+                    $historico_ventas['ventas_ars'][$idx] += (float)$vr['monto'];
+                    $historico_ventas['piezas'][$idx] += (int)$vr['cantidad'];
+                }
             }
 
             // 2. Filamentos con peso_actual_g <= alerta_stock_minimo_g
@@ -118,76 +142,45 @@ function obtener_metricas_dashboard(?PDO $pdo): array
                 $capital_filamento_ars = (float)$rowFil['capital_filamento'];
             }
 
-            // 3. Conteo de piezas por estado y Capital Inmovilizado en Stock
-            $stmtEstados = $pdo->query('
+            // Gráfico 1: Distribución real de filamentos en stock por material (Inventario de Bobinas)
+            $stmtMat = $pdo->query('
+                SELECT material, COALESCE(SUM(peso_actual_g), 0) as total_gramos
+                FROM filamentos
+                WHERE activo = 1
+                GROUP BY material
+                ORDER BY total_gramos DESC
+            ');
+            $dbMats = $stmtMat->fetchAll();
+            foreach ($dbMats as $dm) {
+                $g = (int)$dm['total_gramos'];
+                if ($g > 0) {
+                    $materiales_distribucion[$dm['material']] = $g;
+                }
+            }
+
+            // Gráfico 3 & KPIs: Conteo de piezas por estado y Capital Inmovilizado en Stock (excluyendo archivadas)
+            $stmtEstados = $pdo->query("
                 SELECT estado, COUNT(*) as cantidad, 
                        COALESCE(SUM(costo_produccion_ars), 0) as costo_total,
                        COALESCE(SUM(precio_venta_ars), 0) as valor_venta
                 FROM piezas_stock
+                WHERE estado != 'archivada'
                 GROUP BY estado
-            ');
+            ");
             while ($rowE = $stmtEstados->fetch()) {
                 $est = $rowE['estado'];
-                $estados_piezas[$est] = (int)$rowE['cantidad'];
+                if (isset($estados_piezas[$est])) {
+                    $estados_piezas[$est] = (int)$rowE['cantidad'];
+                }
                 if ($est === 'en_stock') {
                     $capital_inmovilizado_stock_ars = (float)$rowE['costo_total'];
                     $valor_venta_stock_ars = (float)$rowE['valor_venta'];
                 }
             }
 
-            // 4. Filamentos más usados / distribución de consumo en gramos
-            $stmtMat = $pdo->query('
-                SELECT f.material, COALESCE(SUM(p.peso_g), 0) as gramos_consumidos
-                FROM piezas_stock p
-                INNER JOIN filamentos f ON p.filamento_id = f.id
-                GROUP BY f.material
-                ORDER BY gramos_consumidos DESC
-            ');
-            $dbMats = $stmtMat->fetchAll();
-            if (!empty($dbMats)) {
-                $materiales_distribucion = [];
-                foreach ($dbMats as $dm) {
-                    $materiales_distribucion[$dm['material']] = (int)$dm['gramos_consumidos'];
-                }
-            }
-
         } catch (\Throwable $e) {
             error_log('[API-DASHBOARD-ERR] ' . $e->getMessage());
         }
-    }
-
-    // Si los datos están vacíos (instalación inicial), proveer valores de demostración estructurados
-    if ($total_bobinas === 0 && empty($filamentos_criticos)) {
-        $total_bobinas = 4;
-        $gramos_totales_disponibles = 2770;
-        $capital_filamento_ars = 61850.00;
-        $capital_inmovilizado_stock_ars = 15800.00;
-        $valor_venta_stock_ars = 26500.00;
-        $ganancias_totales = 34500.00;
-        $ventas_totales_ars = 89000.00;
-        $cantidad_ventas = 18;
-        $piezas_vendidas_mes = 12;
-        $ventas_mes_ars = 58400.00;
-        $estados_piezas = [
-            'en_stock' => 7,
-            'vendida' => 18,
-            'dañada' => 2,
-            'en_produccion' => 3
-        ];
-        $filamentos_criticos = [
-            ['id' => 3, 'marca' => 'GST3D', 'material' => 'PLA+', 'color' => 'Blanco', 'peso_actual_g' => 120, 'peso_inicial_g' => 1000, 'alerta_stock_minimo_g' => 150]
-        ];
-        $materiales_distribucion = [
-            'PLA' => 1450,
-            'PETG' => 820,
-            'ABS' => 400,
-            'TPU' => 100
-        ];
-        $historico_ventas = [
-            'labels' => ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
-            'ventas_ars' => [12500.00, 16800.00, 14200.00, 14900.00],
-            'piezas' => [3, 4, 2, 3]
-        ];
     }
 
     return [

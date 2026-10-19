@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         <div class="text-[11px] text-slate-500 font-mono text-center pt-2 border-t border-slate-800/60">
-                            Gramos consumidos agrupados por tipo de polímero
+                            Gramos en stock agrupados por material (Inventario)
                         </div>
                     </div>
 
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Gráfico 2: Ventas Recientes ($ ARS)
-                    const hist = data.historico_ventas || { labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'], ventas_ars: [12000, 15000, 13000, 18000] };
+                    const hist = data.historico_ventas || { labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'], ventas_ars: [0, 0, 0, 0] };
                     const canvas2 = document.getElementById('chart-ventas');
                     if (canvas2) {
                         const c2 = new Chart(canvas2, {
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Gráfico 3: Estado del Catálogo
-                    const ests = data.estados_piezas || { en_stock: 5, vendida: 12, dañada: 1, en_produccion: 2 };
+                    const ests = data.estados_piezas || { en_stock: 0, vendida: 0, dañada: 0, en_produccion: 0 };
                     const canvas3 = document.getElementById('chart-estados');
                     if (canvas3) {
                         const c3 = new Chart(canvas3, {
