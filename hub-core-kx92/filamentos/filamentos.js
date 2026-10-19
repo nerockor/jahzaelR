@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let filamentosData = [];
     let currentFilter = 'all';
+    let colorFiltroActivo = null;
 
     const formatARS = (val) => {
         return new Intl.NumberFormat('es-AR', {
@@ -108,13 +109,350 @@ document.addEventListener('DOMContentLoaded', () => {
     function actualizarEstadisticas() {
         const total = filamentosData.length;
         const gramosTotales = filamentosData.reduce((acc, f) => acc + (parseInt(f.peso_actual_g) || 0), 0);
-        const valorTotal = filamentosData.reduce((acc, f) => acc + ((parseInt(f.peso_actual_g) || 0) * (parseFloat(f.costo_por_gramo_ars) || 0)), 0);
+        const valorTotal = filamentosData.reduce((acc, f) => {
+            const actual = Math.max(0, parseInt(f.peso_actual_g) || 0);
+            const inicial = Math.max(1, parseInt(f.peso_inicial_g) || 1000);
+            const costoRollo = parseFloat(f.costo_rollo_ars) || 0;
+            let costoGramo = parseFloat(f.costo_por_gramo_ars) || 0;
+            if (costoGramo <= 0 && costoRollo > 0 && inicial > 0) {
+                costoGramo = costoRollo / inicial;
+            }
+            return acc + (actual * costoGramo);
+        }, 0);
         const alertas = filamentosData.filter(f => (parseInt(f.peso_actual_g) || 0) <= (parseInt(f.alerta_stock_minimo_g) || 150)).length;
 
         statTotalBobinas.textContent = total;
         statGramosTotales.textContent = `${gramosTotales.toLocaleString('es-AR')} g`;
         statValorInventario.textContent = formatARS(valorTotal);
         statAlertasBajo.textContent = alertas;
+
+        renderTortaColores();
+    }
+
+    function getColorHex(colorStr) {
+        const c = (colorStr || '').toLowerCase().trim();
+        const hexMap = {
+            'rojo': '#ef4444', 'rojito': '#ef4444', 'red': '#ef4444',
+            'naranja': '#f97316', 'orange': '#f97316',
+            'amarillo': '#eab308', 'yellow': '#eab308',
+            'verde': '#22c55e', 'green': '#22c55e', 'militar': '#4d7c0f',
+            'azul': '#3b82f6', 'blue': '#3b82f6', 'marino': '#1e3a8a',
+            'celeste': '#38bdf8', 'sky': '#38bdf8',
+            'violeta': '#a855f7', 'morado': '#8b5cf6', 'purple': '#8b5cf6',
+            'rosa': '#ec4899', 'rosado': '#f472b6', 'pink': '#ec4899',
+            'blanco': '#f8fafc', 'white': '#f8fafc',
+            'negro': '#1e293b', 'black': '#1e293b',
+            'gris': '#94a3b8', 'gray': '#94a3b8', 'grey': '#94a3b8', 'plata': '#cbd5e1', 'silver': '#cbd5e1',
+            'cristal': '#e0f2fe', 'transparente': '#e0f2fe', 'clear': '#e0f2fe',
+            'natural': '#fef08a', 'beige': '#fde68a', 'hueso': '#f5f5f4',
+            'dorado': '#f59e0b', 'oro': '#f59e0b', 'gold': '#f59e0b',
+            'bronce': '#b45309', 'cobre': '#c2410c',
+            'piel': '#fed7aa', 'skin': '#fed7aa',
+            'marron': '#78350f', 'marrón': '#78350f', 'brown': '#78350f', 'chocolate': '#713f12',
+            'cyan': '#06b6d4', 'cian': '#06b6d4',
+            'magenta': '#d946ef', 'fucsia': '#d946ef',
+            'turquesa': '#14b8a6', 'teal': '#0d9488'
+        };
+
+        if (hexMap[c]) return hexMap[c];
+
+        for (const [k, v] of Object.entries(hexMap)) {
+            if (c.includes(k)) return v;
+        }
+
+        if (/^#[0-9a-f]{3,6}$/i.test(c)) return c;
+
+        // Hash determinista para colores no listados
+        let hash = 0;
+        for (let i = 0; i < c.length; i++) {
+            hash = c.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const h = Math.abs(hash) % 360;
+        return `hsl(${h}, 70%, 55%)`;
+    }
+
+    function renderTortaColores() {
+        const contenedorTorta = document.getElementById('contenedor_torta_colores');
+        const listaColores = document.getElementById('lista_colores_stock');
+        const labelTotalColores = document.getElementById('torta_total_colores');
+        const tooltip = document.getElementById('tooltip_torta');
+
+        if (!contenedorTorta || !listaColores) return;
+
+        // Agrupar bobinas por color normalizado
+        const colorMap = {};
+        let gramosTotales = 0;
+
+        filamentosData.forEach(f => {
+            const rawColor = (f.color || 'Sin Color').trim();
+            const colorKey = rawColor.toLowerCase();
+            const actual = Math.max(0, parseInt(f.peso_actual_g) || 0);
+
+            if (actual > 0) {
+                gramosTotales += actual;
+                if (!colorMap[colorKey]) {
+                    colorMap[colorKey] = {
+                        nombre: rawColor.charAt(0).toUpperCase() + rawColor.slice(1),
+                        key: colorKey,
+                        gramos: 0,
+                        colorHex: getColorHex(rawColor),
+                        bobinas: []
+                    };
+                }
+                colorMap[colorKey].gramos += actual;
+                colorMap[colorKey].bobinas.push({
+                    marca: f.marca,
+                    material: f.material,
+                    peso_actual_g: actual,
+                    peso_inicial_g: parseInt(f.peso_inicial_g) || 1000
+                });
+            }
+        });
+
+        const colores = Object.values(colorMap).sort((a, b) => b.gramos - a.gramos);
+        const totalColoresCount = colores.length;
+
+        if (labelTotalColores) {
+            labelTotalColores.textContent = `${totalColoresCount} color${totalColoresCount === 1 ? '' : 'es'} en stock`;
+        }
+
+        if (totalColoresCount === 0 || gramosTotales === 0) {
+            contenedorTorta.innerHTML = `
+                <div class="text-center text-slate-500 font-mono text-xs">
+                    Sin filamentos con gramos disponibles.
+                </div>
+            `;
+            listaColores.innerHTML = `
+                <div class="text-center text-slate-500 font-mono text-xs py-4">
+                    No hay colores con stock actualmente.
+                </div>
+            `;
+            return;
+        }
+
+        // 1. Construir la gráfica SVG interactiva
+        const size = 240;
+        const cx = size / 2;
+        const cy = size / 2;
+        const outerR = 95;
+        const innerR = 60;
+
+        let currentAngle = -Math.PI / 2; // Empezar arriba (12:00)
+        let pathsHtml = '';
+
+        colores.forEach((c, idx) => {
+            const sliceAngle = (c.gramos / gramosTotales) * (2 * Math.PI);
+            const startAngle = currentAngle;
+            const endAngle = currentAngle + sliceAngle;
+            currentAngle = endAngle;
+
+            const isFullCircle = (sliceAngle >= 2 * Math.PI - 0.001);
+
+            let d = '';
+            if (isFullCircle) {
+                d = `M ${cx} ${cy - outerR} A ${outerR} ${outerR} 0 1 1 ${cx} ${cy + outerR} A ${outerR} ${outerR} 0 1 1 ${cx} ${cy - outerR} M ${cx} ${cy - innerR} A ${innerR} ${innerR} 0 1 0 ${cx} ${cy + innerR} A ${innerR} ${innerR} 0 1 0 ${cx} ${cy - innerR} Z`;
+            } else {
+                const x1Outer = cx + outerR * Math.cos(startAngle);
+                const y1Outer = cy + outerR * Math.sin(startAngle);
+                const x2Outer = cx + outerR * Math.cos(endAngle);
+                const y2Outer = cy + outerR * Math.sin(endAngle);
+
+                const x1Inner = cx + innerR * Math.cos(endAngle);
+                const y1Inner = cy + innerR * Math.sin(endAngle);
+                const x2Inner = cx + innerR * Math.cos(startAngle);
+                const y2Inner = cy + innerR * Math.sin(startAngle);
+
+                const largeArcFlag = sliceAngle > Math.PI ? 1 : 0;
+
+                d = [
+                    `M ${x1Outer} ${y1Outer}`,
+                    `A ${outerR} ${outerR} 0 ${largeArcFlag} 1 ${x2Outer} ${y2Outer}`,
+                    `L ${x1Inner} ${y1Inner}`,
+                    `A ${innerR} ${innerR} 0 ${largeArcFlag} 0 ${x2Inner} ${y2Inner}`,
+                    `Z`
+                ].join(' ');
+            }
+
+            const strokeColor = (c.key === 'negro' || c.colorHex.toLowerCase() === '#1e293b') ? '#475569' : '#020617';
+
+            pathsHtml += `
+                <path d="${d}" 
+                      fill="${c.colorHex}" 
+                      stroke="${strokeColor}" 
+                      stroke-width="2" 
+                      class="torta-slice transition-all duration-200 cursor-pointer origin-center"
+                      data-color-key="${c.key}"
+                      data-idx="${idx}"
+                      style="transform-origin: ${cx}px ${cy}px;">
+                </path>
+            `;
+        });
+
+        contenedorTorta.innerHTML = `
+            <svg viewBox="0 0 ${size} ${size}" class="w-full h-full filter drop-shadow-md overflow-visible">
+                ${pathsHtml}
+                <circle cx="${cx}" cy="${cy}" r="${innerR - 1}" fill="#0f172a" />
+                <text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="900" font-family="monospace">
+                    ${gramosTotales >= 1000 ? (gramosTotales / 1000).toFixed(1) + 'kg' : gramosTotales + 'g'}
+                </text>
+                <text x="${cx}" y="${cy + 12}" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="bold" font-family="monospace" letter-spacing="1">
+                    EN STOCK
+                </text>
+            </svg>
+        `;
+
+        // 2. Construir lista interactiva lateral con marcas y gramos
+        listaColores.innerHTML = colores.map((c, idx) => {
+            const pct = (c.gramos / gramosTotales) * 100;
+            const marcasMap = {};
+            c.bobinas.forEach(b => {
+                const key = `${b.marca} ${b.material}`;
+                marcasMap[key] = (marcasMap[key] || 0) + b.peso_actual_g;
+            });
+            const marcasStr = Object.entries(marcasMap).map(([m, g]) => `${m} (${g.toLocaleString('es-AR')}g)`).join(' • ');
+            const isActivo = colorFiltroActivo === c.key;
+
+            return `
+                <div class="color-item-row group p-2.5 rounded-xl border ${isActivo ? 'bg-sky-950/50 border-sky-500 shadow-md shadow-sky-950/40' : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'} cursor-pointer transition flex items-center justify-between gap-3"
+                     data-color-key="${c.key}"
+                     data-idx="${idx}"
+                     title="Click para filtrar solo bobinas color ${c.nombre}">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="w-4 h-4 rounded-full flex-shrink-0 border border-white/30 shadow-sm" style="background-color: ${c.colorHex};"></span>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-bold text-xs text-white truncate">${c.nombre}</span>
+                                <span class="text-[10px] font-mono text-sky-400 font-semibold">${pct.toFixed(1)}%</span>
+                                ${isActivo ? '<span class="text-[9px] bg-sky-500 text-white font-mono px-1 rounded uppercase">Filtro</span>' : ''}
+                            </div>
+                            <div class="text-[11px] text-slate-400 font-mono truncate" title="${marcasStr}">
+                                ${marcasStr}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <span class="font-mono font-bold text-xs text-white">${c.gramos.toLocaleString('es-AR')} g</span>
+                        <div class="w-16 bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden">
+                            <div class="h-full rounded-full transition-all" style="width: ${pct}%; background-color: ${c.colorHex};"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // 3. Eventos de Tooltip y Hover
+        const sliceElements = contenedorTorta.querySelectorAll('.torta-slice');
+        const rowElements = listaColores.querySelectorAll('.color-item-row');
+
+        function mostrarTooltip(c, e) {
+            const pct = (c.gramos / gramosTotales) * 100;
+            const marcasMap = {};
+            c.bobinas.forEach(b => {
+                const key = `${b.marca} ${b.material}`;
+                marcasMap[key] = (marcasMap[key] || 0) + b.peso_actual_g;
+            });
+            const marcasHtml = Object.entries(marcasMap).map(([m, g]) => `
+                <div class="flex justify-between items-center text-[10px] py-0.5">
+                    <span class="text-slate-300 font-bold">• ${m}</span>
+                    <span class="text-sky-300 font-mono font-semibold">${g.toLocaleString('es-AR')} g</span>
+                </div>
+            `).join('');
+
+            tooltip.innerHTML = `
+                <div class="flex items-center gap-2 mb-1.5 pb-1 border-b border-slate-700/80">
+                    <span class="w-3.5 h-3.5 rounded-full border border-white/50 shadow-sm" style="background-color: ${c.colorHex}"></span>
+                    <strong class="text-white text-xs uppercase">${c.nombre}</strong>
+                    <span class="ml-auto text-sky-400 font-mono font-bold">${pct.toFixed(1)}%</span>
+                </div>
+                <div class="text-xs text-slate-300 font-mono mb-1.5 flex justify-between gap-2">
+                    <span class="text-slate-400">Total en stock:</span>
+                    <strong class="text-emerald-400">${c.gramos.toLocaleString('es-AR')} g</strong>
+                </div>
+                <div class="border-t border-slate-800/80 pt-1 mt-1 space-y-0.5">
+                    <div class="text-[9px] uppercase font-bold text-slate-400">Marcas disponibles:</div>
+                    ${marcasHtml}
+                </div>
+            `;
+            tooltip.classList.remove('hidden');
+
+            const rect = contenedorTorta.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            tooltip.style.left = `${Math.min(rect.width - 190, Math.max(5, mouseX + 15))}px`;
+            tooltip.style.top = `${Math.min(rect.height - 120, Math.max(5, mouseY - 15))}px`;
+        }
+
+        function ocultarTooltip() {
+            tooltip.classList.add('hidden');
+        }
+
+        function resaltarColor(colorKey, highlight = true) {
+            sliceElements.forEach(s => {
+                if (s.dataset.colorKey === colorKey) {
+                    s.style.transform = highlight ? 'scale(1.06)' : 'scale(1)';
+                    s.style.filter = highlight ? 'brightness(1.2) drop-shadow(0 0 8px rgba(255,255,255,0.45))' : 'none';
+                    s.style.opacity = '1';
+                } else {
+                    s.style.opacity = highlight ? '0.4' : '1';
+                    s.style.transform = 'scale(1)';
+                    s.style.filter = 'none';
+                }
+            });
+            rowElements.forEach(r => {
+                if (r.dataset.colorKey === colorKey) {
+                    r.classList.toggle('ring-1', highlight);
+                    r.classList.toggle('ring-sky-500', highlight);
+                }
+            });
+        }
+
+        // Listeners para las rebanadas del SVG
+        sliceElements.forEach(slice => {
+            const key = slice.dataset.colorKey;
+            const cData = colorMap[key];
+
+            slice.addEventListener('mouseenter', (e) => {
+                resaltarColor(key, true);
+                mostrarTooltip(cData, e);
+            });
+            slice.addEventListener('mousemove', (e) => {
+                mostrarTooltip(cData, e);
+            });
+            slice.addEventListener('mouseleave', () => {
+                resaltarColor(key, false);
+                ocultarTooltip();
+            });
+            slice.addEventListener('click', () => {
+                toggleFiltroColor(key);
+            });
+        });
+
+        // Listeners para las filas de la lista lateral
+        rowElements.forEach(row => {
+            const key = row.dataset.colorKey;
+            const cData = colorMap[key];
+
+            row.addEventListener('mouseenter', (e) => {
+                resaltarColor(key, true);
+            });
+            row.addEventListener('mouseleave', () => {
+                resaltarColor(key, false);
+            });
+            row.addEventListener('click', () => {
+                toggleFiltroColor(key);
+            });
+        });
+    }
+
+    function toggleFiltroColor(colorKey) {
+        if (colorFiltroActivo === colorKey) {
+            colorFiltroActivo = null;
+        } else {
+            colorFiltroActivo = colorKey;
+        }
+        renderTortaColores();
+        renderCards();
     }
 
     function getFilamentStyle(colorStr) {
@@ -145,21 +483,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (!found) return ''; // No tint if color unknown
-        // Return a linear gradient that washes the top-left of the card with the tint, 
-        // fading into the standard slate-900 background.
         return `background: linear-gradient(145deg, rgba(${rgb}, 0.15) 0%, rgba(15, 23, 42, 0.95) 50%);`;
     }
 
     function renderCards() {
         const filtrados = filamentosData.filter(f => {
-            if (currentFilter === 'all') return true;
-            return f.material.toUpperCase().includes(currentFilter.toUpperCase());
+            const matchMat = (currentFilter === 'all') || f.material.toUpperCase().includes(currentFilter.toUpperCase());
+            const matchCol = !colorFiltroActivo || (f.color || '').toLowerCase().trim() === colorFiltroActivo;
+            return matchMat && matchCol;
         });
+
+        const btnLimpiar = document.getElementById('btn_limpiar_filtro_color');
+        if (btnLimpiar) {
+            btnLimpiar.classList.toggle('hidden', !colorFiltroActivo);
+            if (colorFiltroActivo) {
+                btnLimpiar.textContent = `Filtro color: ${colorFiltroActivo.toUpperCase()} ✕`;
+            }
+        }
 
         if (filtrados.length === 0) {
             gridFilamentos.innerHTML = `
                 <div class="col-span-full py-12 text-center text-slate-500 font-mono">
-                    No se encontraron bobinas con el filtro seleccionado.
+                    No se encontraron bobinas con los filtros seleccionados.
                 </div>
             `;
             return;
@@ -539,6 +884,15 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCards();
         });
     });
+
+    const btnLimpiarColor = document.getElementById('btn_limpiar_filtro_color');
+    if (btnLimpiarColor) {
+        btnLimpiarColor.addEventListener('click', () => {
+            colorFiltroActivo = null;
+            renderTortaColores();
+            renderCards();
+        });
+    }
 
     // Inicializar
     cargarFilamentos();

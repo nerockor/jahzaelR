@@ -15,7 +15,7 @@ if (!is_authenticated()) {
     exit;
 }
 
-$method = $_SERVER['REQUEST_METHOD'];
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? ($_POST['action'] ?? '');
 
 // Procesar entrada JSON o POST tradicional
@@ -119,14 +119,20 @@ function manejar_listar(PDO $pdo): void
         $inicial = (int)$item['peso_inicial_g'];
         $actual = (int)$item['peso_actual_g'];
         $minimo = (int)$item['alerta_stock_minimo_g'];
+        $costoRollo = (float)$item['costo_rollo_ars'];
+        $costoGramo = (float)$item['costo_por_gramo_ars'];
+        if ($costoGramo <= 0 && $inicial > 0 && $costoRollo > 0) {
+            $costoGramo = round($costoRollo / $inicial, 4);
+        }
+
         $pct = $inicial > 0 ? round(($actual / $inicial) * 100, 1) : 0;
 
         $item['porcentaje_restante'] = max(0, min(100, $pct));
         $item['es_critico'] = $actual <= $minimo;
         $item['peso_actual_g'] = $actual;
         $item['peso_inicial_g'] = $inicial;
-        $item['costo_rollo_ars'] = (float)$item['costo_rollo_ars'];
-        $item['costo_por_gramo_ars'] = (float)$item['costo_por_gramo_ars'];
+        $item['costo_rollo_ars'] = $costoRollo;
+        $item['costo_por_gramo_ars'] = $costoGramo;
         $item['impresiones_activas'] = $printsByFilament[(int)$item['id']] ?? [];
         return $item;
     }, $filamentos);
@@ -152,8 +158,10 @@ function manejar_crear(PDO $pdo, array $input): void
         return;
     }
 
-    $sql = 'INSERT INTO filamentos (marca, material, color, peso_inicial_g, peso_actual_g, costo_rollo_ars, alerta_stock_minimo_g, activo)
-            VALUES (:marca, :material, :color, :peso_ini, :peso_act, :costo, :alerta, 1)';
+    $costo_por_gramo_ars = $peso_inicial_g > 0 ? round($costo_rollo_ars / $peso_inicial_g, 4) : 0.0;
+
+    $sql = 'INSERT INTO filamentos (marca, material, color, peso_inicial_g, peso_actual_g, costo_rollo_ars, costo_por_gramo_ars, alerta_stock_minimo_g, activo)
+            VALUES (:marca, :material, :color, :peso_ini, :peso_act, :costo, :costo_g, :alerta, 1)';
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         ':marca' => $marca,
@@ -162,6 +170,7 @@ function manejar_crear(PDO $pdo, array $input): void
         ':peso_ini' => $peso_inicial_g,
         ':peso_act' => $peso_inicial_g, // Al dar de alta, peso actual = peso inicial
         ':costo' => $costo_rollo_ars,
+        ':costo_g' => $costo_por_gramo_ars,
         ':alerta' => $alerta_min
     ]);
 
@@ -197,6 +206,7 @@ function manejar_editar(PDO $pdo, array $input): void
                 material = :material,
                 color = :color,
                 costo_rollo_ars = :costo,
+                costo_por_gramo_ars = CASE WHEN peso_inicial_g > 0 THEN ROUND(:costo / peso_inicial_g, 4) ELSE 0 END,
                 alerta_stock_minimo_g = :alerta
             WHERE id = :id';
     $stmt = $pdo->prepare($sql);

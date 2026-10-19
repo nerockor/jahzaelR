@@ -82,6 +82,43 @@ $user = get_authenticated_user();
             </div>
         </div>
 
+        <!-- Panel Visual de Colores en Stock (Torta Interactiva) -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-pink-500 via-sky-500 to-amber-400 shadow-sm"></div>
+                    <div>
+                        <h2 class="text-sm font-bold text-white uppercase tracking-wider">Disponibilidad de Colores en Stock</h2>
+                        <p class="text-[11px] text-slate-400 font-mono">Pasa el mouse sobre cada color para ver marcas y gramos disponibles</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono text-sky-400 font-semibold" id="torta_total_colores">0 colores</span>
+                    <button type="button" id="btn_limpiar_filtro_color" class="hidden px-2.5 py-1 text-[11px] font-mono text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition">
+                        Limpiar filtro &times;
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                <!-- Gráfica SVG de Torta -->
+                <div class="md:col-span-5 flex flex-col items-center justify-center relative min-h-[250px]">
+                    <div id="contenedor_torta_colores" class="relative w-60 h-60 flex items-center justify-center">
+                        <!-- SVG inyectado dinámicamente -->
+                    </div>
+                    <!-- Tooltip Flotante para la Torta -->
+                    <div id="tooltip_torta" class="pointer-events-none absolute z-50 hidden bg-slate-950/95 border border-slate-700/90 rounded-xl p-3 shadow-2xl text-xs font-mono backdrop-blur-md transition-all duration-75 min-w-[200px]"></div>
+                </div>
+
+                <!-- Detalle y Desglose de Colores & Marcas -->
+                <div class="md:col-span-7">
+                    <div class="space-y-2 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar" id="lista_colores_stock">
+                        <!-- Inyectado dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Filtros Rápidos -->
         <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/50 p-3 rounded-2xl border border-slate-800/80">
             <div class="flex items-center gap-2" id="filter_materiales">
